@@ -4,7 +4,11 @@ from typing import Optional
 import httpx
 
 from dataspace_sdk.auth.auth import Auth, BasicLoginAuth, TokenAuth
-
+from dataspace_sdk.connector.agreements import AgreementsClient
+from dataspace_sdk.connector.assets import AssetsClient
+from dataspace_sdk.connector.download import DownloadService
+from dataspace_sdk.connector.edrs import EDRSClient
+from dataspace_sdk.connector.transfers import TransfersClient
 
 class DataspaceClient:
     def __init__(
@@ -18,6 +22,15 @@ class DataspaceClient:
             base_url=base_url.rstrip("/"),
             timeout=timeout,
         )
+
+        # Clients
+        self.assets = AssetsClient(self._client)
+        self.agreements = AgreementsClient(self._client)
+        self.transfers = TransfersClient(self._client)
+        self.edrs = EDRSClient(self._client)
+
+        # Services
+        self.downloads = DownloadService(self.agreements, self.transfers, self.edrs)
 
     @classmethod
     def from_env(

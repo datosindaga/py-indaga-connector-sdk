@@ -1,9 +1,8 @@
 import logging
 
-import dataspace_sdk
-from dataspace_sdk import DataspaceClient
-from dataspace_sdk.connector.agreements import get_negotiation_by_agreement_id
-from dataspace_sdk.connector.transfers import create
+from dataspace_sdk.connector.agreements import AgreementsClient
+from dataspace_sdk.connector.edrs import EDRSClient
+from dataspace_sdk.connector.transfers import TransfersClient
 from dataspace_sdk.model.common import DataAddressDTO
 from dataspace_sdk.model.contractnegotiation import ContractNegotiationDTO
 from dataspace_sdk.model.transfer import TransferRequestDTO
@@ -33,8 +32,8 @@ class DownloadRequest:
         if not self.agreement_id or not self.agreement_id.strip():
             raise ValueError("agreement_id is required")
 
-def _build_transfer_request(
-    negotiation: ContractNegotiationDTO,
+
+def _build_transfer_request(negotiation: ContractNegotiationDTO,
     request: DownloadRequest,
 ) -> TransferRequestDTO:
     address = DataAddressDTO(address_type=request.data_address_type)
@@ -48,25 +47,31 @@ def _build_transfer_request(
         counter_party_address=negotiation.counter_party_address,
     )
 
+class DownloadService:
 
-def download(client: DataspaceClient, request: DownloadRequest) -> DownloadResult:
-    log.info("Starting download for agreement: %s", request.agreement_id)
+    def __init__(self, agreements: AgreementsClient, transfers: TransfersClient, edrs: EDRSClient):
+        self._agreements = agreements
+        self._transfers = transfers
+        self._edrs = edrs
 
-    log.debug("Fetching contract negotiation...")
-    negotiation = get_negotiation_by_agreement_id(client, request.agreement_id)
+    def download(self, request: DownloadRequest) -> DownloadResult:
+        log.info("Starting download for agreement: %s", request.agreement_id)
 
-    log.info("Negotiation resolved — state: %s, counterParty: %s",
-             negotiation.state, negotiation.counter_party_address)
+        log.debug("Fetching contract negotiation...")
+        negotiation = self._agreements.get_negotiation_by_agreement_id(request.agreement_id)
 
-    log.debug("Initiating transfer process...")
-    transfer = create(client, _build_transfer_request(negotiation, request))
-    log.info("Transfer process created — id: %s, type: %s",transfer.id, request.transfer_type)
+        log.info("Negotiation resolved — state: %s, counterParty: %s",
+                 negotiation.state, negotiation.counter_party_address)
 
-    log.debug("Downloading data via EDR cache")
-    content = dataspace_sdk.connector.edrs.download(client, transfer.id)
-    log.info("Download complete — transferId: %s, bytes received: %s", transfer.id, content.__sizeof__())
+        log.debug("Initiating transfer process...")
+        transfer = self._transfers.create(
+            _build_transfer_request(negotiation, request))
+        log.info("Transfer process created — id: %s, type: %s",transfer.id, request.transfer_type)
 
-    return DownloadResult(content, transfer.id)
+        log.debug("Downloading data via EDR cache")
+        content = self._edrs.download(transfer.id)
+        log.info("Download complete — transferId: %s, bytes received: %s", transfer.id, content.__sizeof__())
 
+        return DownloadResult(content, transfer.id)
 
 
