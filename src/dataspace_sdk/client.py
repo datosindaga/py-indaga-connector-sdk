@@ -18,6 +18,7 @@ from dataspace_sdk.connector.clients.transfers import TransfersClient
 from dataspace_sdk.connector.services.download import DownloadService
 from dataspace_sdk.connector.services.edrs import EdrService
 from dataspace_sdk.connector.services.transfer import TransferService
+from dataspace_sdk.connector.services.agreement import AgreementService
 
 
 class DataspaceClient:
@@ -48,6 +49,7 @@ class DataspaceClient:
         self.download_service = DownloadService(self.agreements, self.transfers, self.edrs)
         self.edr_service = EdrService(self.edrs)
         self.tranfer_service = TransferService(self.transfers, self.edrs)
+        self.agreement_service = AgreementService(self.agreements)
 
     @classmethod
     def from_env(
