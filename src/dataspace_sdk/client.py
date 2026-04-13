@@ -4,11 +4,21 @@ from typing import Optional
 import httpx
 
 from dataspace_sdk.auth.auth import BasicLoginAuth, TokenAuth
-from dataspace_sdk.connector.agreements import AgreementsClient
-from dataspace_sdk.connector.assets import AssetsClient
-from dataspace_sdk.connector.download import DownloadService
-from dataspace_sdk.connector.edrs import EDRSClient
-from dataspace_sdk.connector.transfers import TransfersClient
+from dataspace_sdk.connector.clients.assets import AssetsClient
+from dataspace_sdk.connector.clients.catalog import CatalogClient
+from dataspace_sdk.connector.clients.contract_agreements import \
+    ContractAgreementsClient
+from dataspace_sdk.connector.clients.contract_definitions import \
+    ContractDefinitionsClient
+from dataspace_sdk.connector.clients.contract_negotiations import \
+    ContractNegotiationsClient
+from dataspace_sdk.connector.clients.edrs import EDRSClient
+from dataspace_sdk.connector.clients.policies import PoliciesClient
+from dataspace_sdk.connector.clients.transfers import TransfersClient
+from dataspace_sdk.connector.services.download import DownloadService
+from dataspace_sdk.connector.services.edrs import EdrService
+from dataspace_sdk.connector.services.transfer import TransferService
+
 
 class DataspaceClient:
 
@@ -25,13 +35,19 @@ class DataspaceClient:
         )
 
         # Clients
-        self.assets = AssetsClient(self)
-        self.agreements = AgreementsClient(self)
-        self.transfers = TransfersClient(self)
-        self.edrs = EDRSClient(self)
+        self.assets = AssetsClient(self._client)
+        self.policies = PoliciesClient(self._client)
+        self.contract_definitions = ContractDefinitionsClient(self._client)
+        self.contract_negotiations = ContractNegotiationsClient(self._client)
+        self.agreements = ContractAgreementsClient(self._client)
+        self.catalog = CatalogClient(self._client)
+        self.transfers = TransfersClient(self._client)
+        self.edrs = EDRSClient(self._client)
 
         # Services
-        self.downloads = DownloadService(self.agreements, self.transfers, self.edrs)
+        self.download_service = DownloadService(self.agreements, self.transfers, self.edrs)
+        self.edr_service = EdrService(self.edrs)
+        self.tranfer_service = TransferService(self.transfers, self.edrs)
 
     @classmethod
     def from_env(
@@ -44,7 +60,17 @@ class DataspaceClient:
         token: str | None = None,
         timeout: float = 10.0,
     ) -> "DataspaceClient":
+        """
+        Creates a new DataspaceClient from environment variables. All values can be overriden.
 
+        Args:
+            base_url: Base URL override for this client
+            auth_base_url: Base URL override for authentication
+            username: Username override for this client
+            password: Password override for this client
+            token: Token override for this client
+            timeout: Timeout override for this client. Defaults to 10
+        """
         resolved_base_url = base_url or os.getenv("DATASPACE_BASE_URL")
         resolved_auth_base_url = auth_base_url or os.getenv("DATASPACE_AUTH_BASE_URL")
         resolved_token = token or os.getenv("DATASPACE_TOKEN")
@@ -73,21 +99,6 @@ class DataspaceClient:
             )
 
         return cls(base_url=resolved_base_url, auth=auth, timeout=timeout)
-
-    def get(self, path: str, **kwargs) -> httpx.Response:
-        response = self._client.get(path, **kwargs)
-        response.raise_for_status()
-        return response
-
-    def post(self, path: str, **kwargs) -> httpx.Response:
-        response = self._client.post(path, **kwargs)
-        response.raise_for_status()
-        return response
-
-    def delete(self, path: str, **kwargs) -> httpx.Response:
-        response = self._client.delete(path, **kwargs)
-        response.raise_for_status()
-        return response
 
     def close(self):
         self._client.close()

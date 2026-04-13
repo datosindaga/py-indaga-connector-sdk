@@ -1,6 +1,6 @@
 import logging
 
-from dataspace_sdk.connector.agreements import AgreementsClient
+from dataspace_sdk.connector.agreements import ContractAgreementsClient
 from dataspace_sdk.connector.edrs import EDRSClient
 from dataspace_sdk.connector.transfers import TransfersClient
 from dataspace_sdk.model.common import DataAddressDTO
@@ -17,11 +17,29 @@ _DEFAULT_CONTEXT = ["https://w3id.org/edc/connector/management/v0.0.1"]
 
 @dataclass
 class DownloadResult:
+    """
+    The result of the download.
+
+    Attributes:
+        file_content: the bytes of the downloaded file.
+        transfer_id: the id of the transfer generated during the download.
+    """
     file_content: bytes
     transfer_id: str
 
 @dataclass
 class DownloadRequest:
+    """
+    The request sent to the download service.
+
+    Attributes:
+        agreement_id: the id of the agreement that will be used to start the download (Required)
+        protocol: the protocol that will be used for the transfer (Optional)
+        transfer_type: the type of the transfer that will be used for the transfer (Optional)
+        data_address_type: the type of the data address that will be used for the transfer (Optional)
+        context: the context that will be used for the transfer (Optional)
+
+    """
     agreement_id: str
     protocol: str = _DEFAULT_PROTOCOL
     transfer_type: str = _DEFAULT_TRANSFER_TYPE
@@ -49,12 +67,21 @@ def _build_transfer_request(negotiation: ContractNegotiationDTO,
 
 class DownloadService:
 
-    def __init__(self, agreements: AgreementsClient, transfers: TransfersClient, edrs: EDRSClient):
+    def __init__(self, agreements: ContractAgreementsClient, transfers: TransfersClient, edrs: EDRSClient):
         self._agreements = agreements
         self._transfers = transfers
         self._edrs = edrs
 
     def download(self, request: DownloadRequest) -> DownloadResult:
+        """
+        Executes the full download workflow for the given contract agreement.
+
+        Args:
+            request: the request sent to the download service.
+
+        Returns:
+            The result of the download.
+        """
         log.info("Starting download for agreement: %s", request.agreement_id)
 
         log.debug("Fetching contract negotiation...")
