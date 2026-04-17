@@ -5,7 +5,7 @@ This is the Python SDK of the Flythings Connector Project.
 ## Build
 
 ```bash
-pip install py-dataspace-sdk
+pip install flythings-dataspace-sdk
 ```
 
 ## Content
