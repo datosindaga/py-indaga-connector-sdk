@@ -2,6 +2,8 @@ import httpx
 
 from model.common import QuerySpecDTO, DataAddressDTO
 from model.edr import EndpointDataReferenceDTO
+from model.exceptions import raise_for_status
+
 
 class EDRSClient:
     _controller = "/v1/edrs"
@@ -53,10 +55,12 @@ class EDRSClient:
             The bytes of the data that an EDR is targeting
 
         Raises:
-            httpx.HTTPStatusError: If the server returns an error response.
+            SdkNotFoundException: If no EDR exists for the given transfer id.
+            SdkUnauthorizedException: If the request is not authenticated.
+            SdkServerException: If the server returns an unexpected error.
         """
         response = self._client.get(f"{self._controller}/{transfer_id}/download")
-        response.raise_for_status()
+        raise_for_status(response)
         return response.content
 
 

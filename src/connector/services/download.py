@@ -1,11 +1,13 @@
 import logging
+import time
 
 from connector.clients.contract_agreements import ContractAgreementsClient
 from connector.clients.edrs import EDRSClient
 from connector.clients.transfers import TransfersClient
 from model.common import DataAddressDTO
 from model.contractnegotiation import ContractNegotiationDTO
-from model.transfer import TransferRequestDTO
+from model.exceptions import SdkServerException
+from model.transfer import TransferRequestDTO, TransferStateEnum
 from dataclasses import dataclass, field
 
 log = logging.getLogger(__name__)
@@ -93,12 +95,38 @@ class DownloadService:
         log.debug("Initiating transfer process...")
         transfer = self._transfers.create(
             _build_transfer_request(negotiation, request))
-        log.info("Transfer process created — id: %s, type: %s",transfer.id, request.transfer_type)
+        log.info("Transfer process created — id: %s, type: %s", transfer.id,
+                 request.transfer_type)
+
+        log.debug("Waiting for transfer to reach STARTED state...")
+        self._wait_for_transfer_started(transfer.id)
 
         log.debug("Downloading data via EDR cache")
         content = self._edrs.download(transfer.id)
         log.info("Download complete — transferId: %s, bytes received: %s", transfer.id, content.__sizeof__())
 
         return DownloadResult(content, transfer.id)
+
+    def _wait_for_transfer_started(self, transfer_id: str, *,
+        max_attempts: int = 10, base_delay: float = 1.0) -> None:
+        """Polls until the transfer process reaches STARTED state."""
+        time.sleep(5)
+        for attempt in range(1, max_attempts + 1):
+            transfer = self._transfers.get_by_id(transfer_id)
+            if transfer.state == TransferStateEnum.STARTED:
+                log.debug("Transfer STARTED after %d attempt(s)", attempt)
+                return
+            if transfer.state in (TransferStateEnum.TERMINATED,
+                                  TransferStateEnum.ERROR):
+                raise SdkServerException(
+                    f"Transfer {transfer_id!r} reached terminal state: {transfer.state}")
+            if attempt == max_attempts:
+                raise TimeoutError(
+                    f"Transfer {transfer_id!r} still in state {transfer.state} after {max_attempts} attempts")
+            delay = base_delay * (2 ** (attempt - 1))
+            log.debug(
+                "Transfer state is %s (attempt %d/%d), retrying in %.1fs...",
+                transfer.state, attempt, max_attempts, delay)
+            time.sleep(delay)
 
 

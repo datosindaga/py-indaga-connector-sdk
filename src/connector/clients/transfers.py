@@ -1,5 +1,6 @@
 import httpx
 from model.common import QuerySpecDTO, IdResponseDTO
+from model.exceptions import raise_for_status
 from model.transfer import TransferProcessDTO, TransferRequestDTO, \
     SuspendTransferDTO
 
@@ -37,9 +38,11 @@ class TransfersClient:
             The found transfer.
 
         Raises:
-            httpx.HTTPStatusError: If the server returns an error response.
+            SdkNotFoundException: If no transfer exists for the given id.
+            SdkServerException: If the server returns an unexpected error
         """
         response = self._client.get(f"{self._controller}/{transfer_id}")
+        raise_for_status(response)
         return TransferProcessDTO.model_validate(response.json())
 
     def create(self, transfer: TransferRequestDTO) -> IdResponseDTO:
@@ -58,6 +61,7 @@ class TransfersClient:
             self._controller,
             json=transfer.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return IdResponseDTO.model_validate(response.json())
 
     def resume(self, transfer_id: str) -> None:

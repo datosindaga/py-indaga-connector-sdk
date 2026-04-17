@@ -20,13 +20,14 @@ class TransferStateEnum(str, Enum):
     """Enumerates the possible lifecycle states of a transfer process.
 
     Attributes:
-        REQUESTED: The transfer has been requested but not yet started.
+        INITIAL: The transfer has been requested but not yet started.
         STARTED: The transfer is actively in progress.
         SUSPENDED: The transfer has been temporarily paused.
         COMPLETED: The transfer finished successfully.
         TERMINATED: The transfer was ended before completion, typically by one of the parties.
         ERROR: The transfer encountered an unrecoverable error.
     """
+    INITIAL = "INITIAL"
     REQUESTED = "REQUESTED"
     STARTED = "STARTED"
     SUSPENDED = "SUSPENDED"
