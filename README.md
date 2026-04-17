@@ -15,6 +15,26 @@ pip install py-dataspace-sdk
   Connector
 - Model: This module contains all the required EDC entities
 
+## Requirements
+
+| Tool | Version |
+|------|---------|
+| Python | 3.9+ |
+
+## Dependencies
+
+### Runtime
+
+| Package | Version | Description |
+|---|---|---|
+| [`httpx`](https://www.python-httpx.org/) | `>=0.27` | HTTP client with async support |
+
+### Development
+
+| Package | Version | Description |
+|---|---|---|
+| [`pytest`](https://docs.pytest.org/) | `>=8.0` | Test framework |
+
 ## Authentication
 
 Authentication is configured on the `DataspaceClient`, which is the central entry point for the SDK. It supports two authentication strategies: **static token** and **credentials-based**.
@@ -94,7 +114,7 @@ file = client.download_service.download(
 )
 ```
 
-> **Note:** You can retrieve the `agreement_id` from the web interface. Navigate to **Contracts**, select a contract for your desired asset, click **View Details**, and locate the **Agreement ID** in the Agreement section. ![agreement.png](agreement.png)
+> **Note:** You can retrieve the `agreement_id` from the web interface. Navigate to **Contracts**, select a contract for your desired asset, click **View Details**, and locate the **Agreement ID** in the Agreement section. ![agreement](.docs/agreement.png)
 
 **Full configuration** — the following shows all available parameters with their defaults:
 
