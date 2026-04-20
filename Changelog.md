@@ -1,23 +1,17 @@
-# 1.0.2 (new) (24/04/2026)
-
-Fixed
-
+## [1.0.2](https://github.com/datosindaga/py-indaga-connector-sdk/releases/tag/v1.0.2) (24/04/2026)
+#### New
+- Added download example in .examples
+#### Fixed
 - Added missing dependency
 
-New
+## [1.0.1](https://github.com/datosindaga/py-indaga-connector-sdk/releases/tag/v1.0.2) (24/04/2026)
 
-- Added download example in .examples
-
-# 1.0.1 (24/04/2026)
-
-Breaking changes
-
+#### Breaking changes
 - Moved all packages to flythings_dataspace_sdk. Fixed issue with private classes
 
-# 1.0.0 (17/04/2026)
+## [1.0.0](https://github.com/datosindaga/py-indaga-connector-sdk/releases/tag/v1.0.2) (17/04/2026)
 
-New
-
+#### New
 - Added Authentication
 - Added Client for transfers
 - Added Client for contract agreements
