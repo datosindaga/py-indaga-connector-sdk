@@ -7,10 +7,12 @@ name = "flythings-dataspace-sdk"
 version = "1.0.2"
 description = "SDK for interacting with the Flythings Dataspace Connector"
 authors = [
-    { name="Daniel Silva Iglesias", email="dsilva@itg.es" }
+    { name="Daniel Silva Iglesias", email="dsilva@itg.es" },
+    { name="Datos Indaga", email="indaga@itg.es" }
 ]
 readme = "README.md"
 requires-python = ">=3.9"
+keywords = ["api", "client", "sdk"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
@@ -27,6 +29,11 @@ dependencies = [
 dev = [
     "pytest>=8.0"
 ]
+
+[project.urls]
+Homepage = "https://github.com/datosindaga"
+Repository = "https://github.com/datosindaga/py-indaga-connector-sdk"
+Issues = "https://github.com/datosindaga/py-indaga-connector-sdk/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
