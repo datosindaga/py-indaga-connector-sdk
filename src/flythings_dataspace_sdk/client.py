@@ -3,12 +3,10 @@ from typing import Optional
 
 import httpx
 
-from auth.auth import BasicLoginAuth, TokenAuth
-from connector.clients.contract_agreements import \
-    ContractAgreementsClient
-from connector.clients.edrs import EDRSClient
-from connector.clients.transfers import TransfersClient
-from connector.services.download import DownloadService
+from flythings_dataspace_sdk.connector.clients import ContractAgreementsClient, TransfersClient, EDRSClient
+from flythings_dataspace_sdk.connector.services import DownloadService
+from flythings_dataspace_sdk.auth import TokenAuth, BasicLoginAuth
+
 
 class DataspaceClient:
 

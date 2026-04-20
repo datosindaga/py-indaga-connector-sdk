@@ -1,14 +1,11 @@
 import logging
 import time
 
-from connector.clients.contract_agreements import ContractAgreementsClient
-from connector.clients.edrs import EDRSClient
-from connector.clients.transfers import TransfersClient
-from model.common import DataAddressDTO
-from model.contractnegotiation import ContractNegotiationDTO
-from model.exceptions import SdkServerException
-from model.transfer import TransferRequestDTO, TransferStateEnum
 from dataclasses import dataclass, field
+
+from flythings_dataspace_sdk.connector.clients import ContractAgreementsClient, TransfersClient, EDRSClient
+from flythings_dataspace_sdk.model import ContractNegotiationDTO, TransferRequestDTO, \
+    DataAddressDTO, TransferStateEnum, SdkServerException
 
 log = logging.getLogger(__name__)
 

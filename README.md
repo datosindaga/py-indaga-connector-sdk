@@ -44,7 +44,7 @@ Authentication is configured on the `DataspaceClient`, which is the central entr
 ### Static Token
 
 ```python
-from dataspace_sdk import DataspaceClient, TokenAuth
+from flythings_dataspace_sdk import DataspaceClient, TokenAuth
 
 auth = TokenAuth(token="my-token")
 
@@ -57,7 +57,7 @@ client = DataspaceClient(
 ### Credentials (Recommended)
 
 ```python
-from dataspace_sdk import DataspaceClient, BasicLoginAuth
+from flythings_dataspace_sdk import DataspaceClient, BasicLoginAuth
 
 auth = BasicLoginAuth(
     auth_base_url="https://sdk.auth.url",
@@ -76,7 +76,11 @@ When using `BasicLoginAuth`, the client acquires and refreshes tokens automatica
 An optional `timeout` (in seconds) can be passed to `DataspaceClient`:
 
 ```python
-client = DataspaceClient(base_url=..., auth=auth, timeout=10)
+from flythings_dataspace_sdk import DataspaceClient, TokenAuth
+
+auth = TokenAuth(token="my-token")
+
+client = DataspaceClient(base_url="my-base-url", auth=auth, timeout=10)
 ```
 
 ### Environment Variables (Recommended for Production)
@@ -84,6 +88,8 @@ client = DataspaceClient(base_url=..., auth=auth, timeout=10)
 The SDK can be configured entirely via environment variables using the `from_env()` factory:
 
 ```python
+from flythings_dataspace_sdk import DataspaceClient
+
 client = DataspaceClient.from_env()
 ```
 
@@ -109,6 +115,10 @@ The `DataspaceClient` exposes all clients and services as attributes — no sepa
 **Minimal usage** — only `agreement_id` is required:
 
 ```python
+from flythings_dataspace_sdk import DataspaceClient, DownloadRequest
+
+client = DataspaceClient.from_env()
+
 file = client.download_service.download(
     DownloadRequest(agreement_id="a3fe7fee-b359-477c-ab9d-0f9671601bf4")
 )
@@ -119,7 +129,9 @@ file = client.download_service.download(
 **Full configuration** — the following shows all available parameters with their defaults:
 
 ```python
-from dataspace_sdk import DownloadRequest
+from flythings_dataspace_sdk import DataspaceClient, DownloadRequest
+
+client = DataspaceClient.from_env()
 
 file = client.download_service.download(
     DownloadRequest(

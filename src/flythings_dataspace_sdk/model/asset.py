@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from model.common import DataAddressDTO
+from flythings_dataspace_sdk.model.common import DataAddressDTO
 
 
 class AssetInputDTO(BaseModel):

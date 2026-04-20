@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, AliasChoices
 
-from model.common import QuerySpecDTO
+from flythings_dataspace_sdk.model.common import QuerySpecDTO
 
 class CatalogDTO(BaseModel):
     """Represents a DCAT catalog as returned by a provider's catalog endpoint.

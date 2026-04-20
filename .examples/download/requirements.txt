@@ -1,0 +1,2 @@
+flythings-dataspace-sdk
+python-dotenv

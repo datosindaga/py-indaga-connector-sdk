@@ -1,8 +1,7 @@
 import httpx
-from model.common import QuerySpecDTO, IdResponseDTO
-from model.exceptions import raise_for_status
-from model.transfer import TransferProcessDTO, TransferRequestDTO, \
-    SuspendTransferDTO
+
+from flythings_dataspace_sdk.model import QuerySpecDTO, TransferProcessDTO, \
+    TransferRequestDTO, IdResponseDTO, SuspendTransferDTO, raise_for_status
 
 class TransfersClient:
     _controller = "/v1/transferprocess"

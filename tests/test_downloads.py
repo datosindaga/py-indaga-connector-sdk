@@ -2,8 +2,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from client import DataspaceClient
-from connector.services.download import DownloadRequest
+from flythings_dataspace_sdk import DataspaceClient, DownloadRequest
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)

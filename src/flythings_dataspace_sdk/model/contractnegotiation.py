@@ -1,7 +1,7 @@
 from typing import Any
 from pydantic import BaseModel, Field
 
-from model.common import CallbackAddressDTO
+from flythings_dataspace_sdk.model.common import CallbackAddressDTO
 
 
 class ContractNegotiationDTO(BaseModel):

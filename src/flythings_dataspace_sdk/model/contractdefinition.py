@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from model.common import CriterionDTO
+from flythings_dataspace_sdk.model.common import CriterionDTO
 
 class ContractState(str, Enum):
     """Enumerates the possible lifecycle states of a contract definition.

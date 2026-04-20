@@ -1,16 +1,20 @@
-# 1.0.0 (new) (17/04/2026)
-
-Breaking changes
-
-- None
+# 1.0.2 (new) (24/04/2026)
 
 Fixed
 
-- None
+- Added missing dependency
 
-Improved
+New
 
-- None
+- Added download example in .examples
+
+# 1.0.1 (24/04/2026)
+
+Breaking changes
+
+- Moved all packages to flythings_dataspace_sdk. Fixed issue with private classes
+
+# 1.0.0 (17/04/2026)
 
 New
 
