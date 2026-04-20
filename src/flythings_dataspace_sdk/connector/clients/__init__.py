@@ -1,0 +1,3 @@
+from flythings_dataspace_sdk.connector.clients.contract_agreements import ContractAgreementsClient
+from flythings_dataspace_sdk.connector.clients.edrs import EDRSClient
+from flythings_dataspace_sdk.connector.clients.transfers import TransfersClient

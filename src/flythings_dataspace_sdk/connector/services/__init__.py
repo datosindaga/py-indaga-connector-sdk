@@ -1,0 +1,1 @@
+from flythings_dataspace_sdk.connector.services.download import DownloadResult, DownloadRequest, DownloadService
