@@ -3,7 +3,7 @@ from typing import Optional
 
 import httpx
 
-from flythings_dataspace_sdk.connector.clients import ContractAgreementsClient, TransfersClient, EDRSClient
+from flythings_dataspace_sdk.connector.clients import AssetsClient, ContractAgreementsClient, TransfersClient, EDRSClient
 from flythings_dataspace_sdk.connector.services import DownloadService
 from flythings_dataspace_sdk.auth import TokenAuth, BasicLoginAuth
 
@@ -26,6 +26,7 @@ class DataspaceClient:
         self._auth = auth
 
         # Clients
+        self.assets = AssetsClient(self._client)
         self.agreements = ContractAgreementsClient(self._client)
         self.transfers = TransfersClient(self._client)
         self.edrs = EDRSClient(self._client)

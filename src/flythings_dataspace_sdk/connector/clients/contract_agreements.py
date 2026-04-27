@@ -1,8 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, ContractAgreementDTO, \
-    ContractNegotiationDTO
-from flythings_dataspace_sdk.model import raise_for_status
+    ContractNegotiationDTO, raise_for_status
 
 class ContractAgreementsClient:
     _controller = "/v1/contractagreements"

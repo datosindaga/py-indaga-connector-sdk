@@ -1,8 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import EndpointDataReferenceDTO, QuerySpecDTO, \
-    DataAddressDTO
-from flythings_dataspace_sdk.model import raise_for_status
+    DataAddressDTO, raise_for_status
 
 
 class EDRSClient:

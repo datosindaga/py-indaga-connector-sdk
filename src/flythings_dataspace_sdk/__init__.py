@@ -22,7 +22,7 @@ __all__ = [
     # Auth
     "TokenAuth",
     "BasicLoginAuth",
-    # Download
+    # Services
     "DownloadRequest",
     # Asset
     "AssetInputDTO", "AssetOutputDTO",
@@ -52,10 +52,4 @@ __all__ = [
     # Transfer
     "TransferProcessRole", "TransferStateEnum", "TransferProcessDTO",
     "TransferRequestDTO", "SuspendTransferDTO", "TransferStateDTO",
-    # Auth
-    "TokenAuth", "BasicLoginAuth",
-    # Client
-    "DataspaceClient",
-    # Services
-    "DownloadRequest",
 ]

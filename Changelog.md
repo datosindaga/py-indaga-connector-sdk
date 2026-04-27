@@ -1,3 +1,9 @@
+## [1.1.0]() (In develop)
+#### New
+- Added AssetsClient
+#### Improved
+- Added documentation
+
 ## [1.0.2](https://github.com/datosindaga/py-indaga-connector-sdk/releases/tag/v1.0.2) (24/04/2026)
 #### New
 - Added download example in .examples
