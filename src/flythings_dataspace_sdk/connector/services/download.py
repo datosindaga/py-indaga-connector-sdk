@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from flythings_dataspace_sdk.connector.clients import ContractAgreementsClient, TransfersClient, EDRSClient
 from flythings_dataspace_sdk.model import ContractNegotiationDTO, TransferRequestDTO, \
-    DataAddressDTO, TransferStateEnum, SdkServerException
+    DataAddressDTO, TransferStateEnum, SdkServerException, SdkBadRequestException
 
 log = logging.getLogger(__name__)
 
@@ -85,6 +85,11 @@ class DownloadService:
 
         log.debug("Fetching contract negotiation...")
         negotiation = self._agreements.get_negotiation_by_agreement_id(request.agreement_id)
+
+        if negotiation.state == "TERMINATED":
+            raise SdkBadRequestException(
+                f"Contract negotiation is TERMINATED for agreement: {request.agreement_id}"
+            )
 
         log.info("Negotiation resolved — state: %s, counterParty: %s",
                  negotiation.state, negotiation.counter_party_address)

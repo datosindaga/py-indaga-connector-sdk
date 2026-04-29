@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flythings-dataspace-sdk"
-version = "1.0.2"
+version = "1.1.0-alpha"
 description = "SDK for interacting with the Flythings Dataspace Connector"
 authors = [
     { name="Daniel Silva Iglesias", email="dsilva@itg.es" },

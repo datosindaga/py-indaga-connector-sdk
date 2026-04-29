@@ -1,8 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, ContractAgreementDTO, \
-    ContractNegotiationDTO
-from flythings_dataspace_sdk.model import raise_for_status
+    ContractNegotiationDTO, raise_for_status
 
 class ContractAgreementsClient:
     _controller = "/v1/contractagreements"
@@ -26,6 +25,7 @@ class ContractAgreementsClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return [ContractAgreementDTO.model_validate(item) for item in response.json()]
 
 
@@ -42,6 +42,7 @@ class ContractAgreementsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{agreement_id}")
+        raise_for_status(response)
         return ContractAgreementDTO.model_validate(response.json())
 
 
@@ -58,4 +59,5 @@ class ContractAgreementsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{agreement_id}/negotiation")
+        raise_for_status(response)
         return ContractNegotiationDTO.model_validate(response.json())

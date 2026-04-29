@@ -1,8 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import EndpointDataReferenceDTO, QuerySpecDTO, \
-    DataAddressDTO
-from flythings_dataspace_sdk.model import raise_for_status
+    DataAddressDTO, raise_for_status
 
 
 class EDRSClient:
@@ -27,6 +26,7 @@ class EDRSClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return [EndpointDataReferenceDTO.model_validate(item) for item in response.json()]
 
 
@@ -43,6 +43,7 @@ class EDRSClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{transfer_id}")
+        raise_for_status(response)
         return DataAddressDTO.model_validate(response.json())
 
     def download(self, transfer_id: str) -> bytes:
@@ -73,4 +74,5 @@ class EDRSClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.delete(f"{self._controller}/{transfer_id}")
+        response = self._client.delete(f"{self._controller}/{transfer_id}")
+        raise_for_status(response)

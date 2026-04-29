@@ -25,6 +25,7 @@ class TransfersClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return [TransferProcessDTO.model_validate(item) for item in response.json()]
 
     def get_by_id(self, transfer_id: str) -> TransferProcessDTO:
@@ -72,21 +73,24 @@ class TransfersClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.post(f"{self._controller}/{transfer_id}/resume")
+        response = self._client.post(f"{self._controller}/{transfer_id}/resume")
+        raise_for_status(response)
 
     def suspend(self, transfer_id: str, suspend_transfer: SuspendTransferDTO) -> None:
         """Suspends a transfer
 
         Args:
             transfer_id: The id of the transfer
+            suspend_transfer: the reason
 
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.post(
+        response = self._client.post(
             f"{self._controller}/{transfer_id}/suspend",
             json=suspend_transfer.model_dump(by_alias=True),
         )
+        raise_for_status(response)
 
     def terminate(self, transfer_id: str) -> None:
         """Terminates a transfer
@@ -97,7 +101,8 @@ class TransfersClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.post(f"{self._controller}/{transfer_id}/terminate")
+        response = self._client.post(f"{self._controller}/{transfer_id}/terminate")
+        raise_for_status(response)
 
 
     def deprovision(self, transfer_id: str) -> None:
@@ -109,4 +114,5 @@ class TransfersClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.post(f"{self._controller}/{transfer_id}/deprovision")
+        response = self._client.post(f"{self._controller}/{transfer_id}/deprovision")
+        raise_for_status(response)
