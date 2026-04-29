@@ -1,6 +1,7 @@
 ## [1.1.0]() (In develop)
 #### New
 - Added AssetsClient
+- Added examples for all clients
 #### Improved
 - Added documentation
 

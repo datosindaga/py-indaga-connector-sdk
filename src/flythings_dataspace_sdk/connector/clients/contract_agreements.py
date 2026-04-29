@@ -25,6 +25,7 @@ class ContractAgreementsClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return [ContractAgreementDTO.model_validate(item) for item in response.json()]
 
 
@@ -41,6 +42,7 @@ class ContractAgreementsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{agreement_id}")
+        raise_for_status(response)
         return ContractAgreementDTO.model_validate(response.json())
 
 
@@ -57,4 +59,5 @@ class ContractAgreementsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{agreement_id}/negotiation")
+        raise_for_status(response)
         return ContractNegotiationDTO.model_validate(response.json())

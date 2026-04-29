@@ -123,7 +123,11 @@ from flythings_dataspace_sdk import DataspaceClient, QuerySpecDTO
 
 client = DataspaceClient.from_env()
 
-results = client.assets.request(QuerySpecDTO())
+results = client.assets.request(
+    QuerySpecDTO(
+        type="QuerySpec",
+    )
+)
 ```
 
 **Filtered query** — narrow results using `CriterionDTO`:
@@ -135,8 +139,11 @@ client = DataspaceClient.from_env()
 
 results = client.assets.request(
     QuerySpecDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="QuerySpec",
         filter_expression=[
             CriterionDTO(
+                type="Criterion",
                 operand_left="id",
                 operator="=",
                 operand_right="my-asset-id",
@@ -150,21 +157,24 @@ This query is the equivalent of the ``get_by_id`` operation from this same clien
 
 - QuerySpecDTO
 
-| Parameter | Type | Default | Description                                      |
-|---|---|---|--------------------------------------------------|
-| `offset` | `int` | `0` | Number of results to skip                        |
-| `limit` | `int` | `50` | Maximum number of results to return              |
-| `sort_order` | `"ASC" \| "DESC"` | `"ASC"` | Sort direction                                   |
-| `sort_field` | `str` | `None` | Field to sort by (see filterable fields below)   |
-| `filter_expression` | `list[CriterionDTO]` | `[]` | List of filter criteria (joined together with AND) |
+| Parameter | Type     | Default | Description                                                                   |
+|-----------|----------|---------|-------------------------------------------------------------------------------|
+| `context` | `list[str]` | `None`  | JSON-LD `@context` — override when using a custom or domain-specific ontology |
+| `type`    | `str`      | `None`  | EDC Type                                                                      |
+| `offset` | `int` | `0`     | Number of results to skip                                                     |
+| `limit` | `int` | `None`  | Maximum number of results to return                                           |
+| `sort_order` | `"ASC" \| "DESC"` | `"ASC"` | Sort direction                                                                |
+| `sort_field` | `str` | `None`  | Field to sort by (see filterable fields below)                                |
+| `filter_expression` | `list[CriterionDTO]` | `[]`    | List of filter criteria (joined together with AND)                            |
 
 - CriterionDTO
 
-| Parameter | Description |
-|---|---|
+| Parameter | Description                                          |
+|---|------------------------------------------------------|
+| `type`    | EDC Type                                             |
 | `operand_left` | The field to filter on (see filterable fields below) |
-| `operator` | Comparison operator |
-| `operand_right` | Value to compare against |
+| `operator` | Comparison operator                                  |
+| `operand_right` | Value to compare against                             |
 
 **Supported operators:**
 
@@ -180,7 +190,7 @@ For the full operator reference see the [EDC Management API docs](https://eclips
 
 - Filterable Asset Fields
 
-Fields can be referenced by their short name or their fully qualified EDC name.
+Fields can be referenced by their short name or their fully qualified EDC name (depends on the vocabulary).
 
 | Short name | Full EDC name | Type | Description |
 |---|---|---|---|
@@ -217,6 +227,8 @@ client = DataspaceClient.from_env()
 
 id = client.assets.create(
     AssetInputDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="Asset",
         properties={
             "title": "Test TODO",
             "description": "Simple ToDo Json sample for testing with a simple asset",
@@ -231,6 +243,7 @@ id = client.assets.create(
             "authentication": "REST-API Endpoint",
         },
         data_address=DataAddressDTO(
+            type="DataAddress",
             address_type="HttpData",
             base_url="https://jsonplaceholder.typicode.com/todos",
         ),
@@ -244,16 +257,19 @@ Returns the `id` of the created asset as a `string`.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
+| `context` | `list[str]` | ✓  | JSON-LD `@context` — override when using a custom or domain-specific ontology |
+| `type`    | `str`      | ✓  | EDC Type                                                                      |
 | `properties` | `dict` | ✓ | Public asset metadata. See ``Asset Properties`` below |
 | `private_properties` | `dict` | | Metadata visible only to the asset owner (e.g. auth details) |
 | `data_address` | `DataAddressDTO` | ✓ | Describes where and how the asset data is accessed |
 
 - DataAddressDTO
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `address_type` | `str` | ✓ | Transport type — e.g. `HttpData`, `AmazonS3`, `AzureStorage` |
-| `base_url` | `str` | ✓ (for `HttpData`) | Base URL of the data source |
+| Field | Type | Required | Description                                                                              |
+|---|---|---|------------------------------------------------------------------------------------------|
+| `type`    | `str`      | ✓  | EDC Type                                                                                 |
+| `address_type` | `str` | ✓ | Transport type — e.g. `HttpData`, `AmazonS3`, `AzureStorage`                             |
+| `base_url` | `str` | ✓ (for `HttpData`) | Base URL of the data source                                                              |
 | `additional` | `dict` | | Extra transport-specific fields — e.g. `authKey`, `authCode` for authenticated endpoints |
 
 - Asset Properties
@@ -283,6 +299,8 @@ client = DataspaceClient.from_env()
 client.assets.update(
     AssetInputDTO(
         id="my-asset-id",
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="Asset",
         properties={
             "title": "Test TODO",
             "description": "Simple ToDo Json sample for testing with a simple asset",
@@ -297,6 +315,7 @@ client.assets.update(
             "authentication": "REST-API Endpoint",
         },
         data_address=DataAddressDTO(
+            type="DataAddress",
             address_type="HttpData",
             base_url="https://jsonplaceholder.typicode.com/todos",
         ),
@@ -335,8 +354,11 @@ client = DataspaceClient.from_env()
 
 results = client.agreements.request(
     QuerySpecDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="QuerySpec",
         filter_expression=[
             CriterionDTO(
+                type="Criterion",
                 operand_left="assetId",
                 operator="=",
                 operand_right="my-asset-id",
@@ -412,8 +434,11 @@ client = DataspaceClient.from_env()
 
 results = client.transfers.request(
     QuerySpecDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="QuerySpec",
         filter_expression=[
             CriterionDTO(
+                type="Criterion",
                 operand_left="assetId",
                 operator="=",
                 operand_right="my-asset-id",
@@ -471,16 +496,19 @@ Returns a `TransferProcessDTO`.
 Initiate a new transfer process against a contract agreement:
 
 ```python
-from flythings_dataspace_sdk import DataspaceClient, TransferRequestDTO
+from flythings_dataspace_sdk import DataspaceClient, TransferRequestDTO, DataAddressDTO
 
 client = DataspaceClient.from_env()
 
 result = client.transfers.create(
     TransferRequestDTO(
-        counter_party_address="https://provider.connector/protocol",
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="TransferRequest",
         protocol="dataspace-protocol-http",
+        transfer_type="HttpData-PULL",
+        data_destination=DataAddressDTO(address_type="HttpProxy"),
         contract_id="my-agreement-id",
-        transfer_type="HttpData-PUSH",
+        counter_party_address="my-dsp-url",
     )
 )
 ```
@@ -489,15 +517,15 @@ Returns the `id` of the created transfer as a `string`.
 
 - TransferRequestDTO
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `counter_party_address` | `str` | ✓ | DSP protocol endpoint URL of the counterparty connector |
-| `contract_id` | `str` | ✓ | Identifier of the contract agreement authorizing this transfer |
-| `transfer_type` | `str` | ✓ | Transfer channel and direction — e.g. `HttpData-PUSH`, `HttpData-PULL` |
-| `protocol` | `str` | | Dataspace protocol — typically `dataspace-protocol-http` |
-| `data_destination` | `DataAddressDTO` | | Where the transferred data should be delivered |
-| `callback_addresses` | `list[CallbackAddressDTO]` | | Endpoints to notify on state changes |
-| `private_properties` | `dict` | | Private metadata, not shared externally |
+| Field | Type | Required | Description                                                                                           |
+|---|---|---|-------------------------------------------------------------------------------------------------------|
+| `counter_party_address` | `str` | ✓ | DSP protocol endpoint URL of the counterparty connector, usually obtained from the contract agreement |
+| `contract_id` | `str` | ✓ | Identifier of the contract agreement authorizing this transfer                                        |
+| `transfer_type` | `str` | ✓ | Transfer channel and direction — e.g. `HttpData-PUSH`, `HttpData-PULL`                                |
+| `protocol` | `str` | | Dataspace protocol — typically `dataspace-protocol-http`                                              |
+| `data_destination` | `DataAddressDTO` | | Where the transferred data should be delivered                                                        |
+| `callback_addresses` | `list[CallbackAddressDTO]` | | Endpoints to notify on state changes                                                                  |
+| `private_properties` | `dict` | | Private metadata, not shared externally                                                               |
 
 ##### Suspend
 
@@ -571,8 +599,11 @@ client = DataspaceClient.from_env()
 
 results = client.edrs.request(
     QuerySpecDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="QuerySpec",
         filter_expression=[
             CriterionDTO(
+                type="Criterion",
                 operand_left="assetId",
                 operator="=",
                 operand_right="my-asset-id",

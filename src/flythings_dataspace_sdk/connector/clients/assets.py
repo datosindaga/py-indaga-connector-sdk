@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, AssetOutputDTO, AssetInputDTO, \
-    IdResponseDTO
+    IdResponseDTO, raise_for_status
 
 
 class AssetsClient:
@@ -24,8 +24,9 @@ class AssetsClient:
         """
         response = self._client.post(
             f"{self._controller}/request",
-            json=query,
+            json=query.model_dump(by_alias=True, exclude_none=True),
         )
+        raise_for_status(response)
         return [AssetOutputDTO.model_validate(item) for item in response.json()]
 
     def get_by_id(self, asset_id: str) -> AssetOutputDTO:
@@ -41,6 +42,7 @@ class AssetsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{asset_id}")
+        raise_for_status(response)
         return AssetOutputDTO.model_validate(response.json())
 
     def create(self, asset: AssetInputDTO) -> IdResponseDTO:
@@ -59,6 +61,7 @@ class AssetsClient:
             self._controller,
             json=asset.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return IdResponseDTO.model_validate(response.json())
 
     def update(self, asset: AssetInputDTO) -> None:
@@ -73,10 +76,11 @@ class AssetsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.put(
+        response = self._client.put(
             self._controller,
             json=asset.model_dump(by_alias=True),
         )
+        raise_for_status(response)
 
     def delete(self, asset_id: str) -> None:
         """Deletes an asset.
@@ -90,4 +94,5 @@ class AssetsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.delete(f"{self._controller}/{asset_id}")
+        response = self._client.delete(f"{self._controller}/{asset_id}")
+        raise_for_status(response)
