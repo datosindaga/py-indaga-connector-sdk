@@ -56,4 +56,4 @@ class AgreementService:
             ],
         )
 
-        return self._agreements.request(query=query)
+        return self._agreements.request(query=query).items
