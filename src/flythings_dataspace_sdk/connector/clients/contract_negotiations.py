@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, ContractNegotiationDTO, \
-    NegotiationStateDTO, ContractRequestDTO, IdResponseDTO
+    NegotiationStateDTO, ContractRequestDTO, IdResponseDTO, raise_for_status
 
 
 class ContractNegotiationsClient:
@@ -26,6 +26,7 @@ class ContractNegotiationsClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return [ContractNegotiationDTO.model_validate(item) for item in response.json()]
 
     def get_by_id(self, contract_id: str) -> ContractNegotiationDTO:
@@ -41,6 +42,7 @@ class ContractNegotiationsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{contract_id}")
+        raise_for_status(response)
         return ContractNegotiationDTO.model_validate(response.json())
 
     def get_state_by_id(self, contract_id: str) -> NegotiationStateDTO:
@@ -56,6 +58,7 @@ class ContractNegotiationsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{contract_id}/state")
+        raise_for_status(response)
         return NegotiationStateDTO.model_validate(response.json())
 
     def get_agreement(self, contract_id: str) -> ContractNegotiationDTO:
@@ -71,6 +74,7 @@ class ContractNegotiationsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{contract_id}/agreement")
+        raise_for_status(response)
         return ContractNegotiationDTO.model_validate(response.json())
 
     def create(self, contract: ContractRequestDTO) -> IdResponseDTO:
@@ -89,6 +93,7 @@ class ContractNegotiationsClient:
             self._controller,
             json=contract.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return IdResponseDTO.model_validate(response.json())
 
     def terminate(self, contract_id: str) -> None:
@@ -100,7 +105,8 @@ class ContractNegotiationsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.post(f"{self._controller}/{contract_id}/terminate")
+        response = self._client.post(f"{self._controller}/{contract_id}/terminate")
+        raise_for_status(response)
 
     def hide(self, contract_id: str) -> None:
         """Hides a negotiation from the user when querying.
@@ -111,7 +117,8 @@ class ContractNegotiationsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.post(f"{self._controller}/{contract_id}/hide")
+        response = self._client.post(f"{self._controller}/{contract_id}/hide")
+        raise_for_status(response)
 
     def delete(self, contract_id: str) -> None:
         """Deletes a negotiation
@@ -122,4 +129,5 @@ class ContractNegotiationsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.delete(f"{self._controller}/{contract_id}")
+        response = self._client.delete(f"{self._controller}/{contract_id}")
+        raise_for_status(response)

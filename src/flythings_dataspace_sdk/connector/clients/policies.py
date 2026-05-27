@@ -2,7 +2,7 @@ import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, PolicyDefinitionOutputDTO, \
     PolicyDefinitionInputDTO, IdResponseDTO, PolicyEvaluationPlanRequestDTO, \
-    PolicyEvaluationPlanDTO, PolicyValidationResultDTO, PaginatedResultDTO
+    PolicyEvaluationPlanDTO, PolicyValidationResultDTO, PaginatedResultDTO, raise_for_status
 
 
 class PoliciesClient:
@@ -27,6 +27,7 @@ class PoliciesClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return PaginatedResultDTO[PolicyDefinitionOutputDTO].model_validate(response.json())
 
     def get_by_id(self, policy_id: str) -> PolicyDefinitionOutputDTO:
@@ -42,6 +43,7 @@ class PoliciesClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{policy_id}")
+        raise_for_status(response)
         return PolicyDefinitionOutputDTO.model_validate(response.json())
 
     def create(self, policy: PolicyDefinitionInputDTO) -> IdResponseDTO:
@@ -60,6 +62,7 @@ class PoliciesClient:
             self._controller,
             json=policy.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return IdResponseDTO.model_validate(response.json())
 
     def update(self, policy: PolicyDefinitionInputDTO) -> None:
@@ -71,10 +74,11 @@ class PoliciesClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.put(
+        response = self._client.put(
             self._controller,
             json=policy.model_dump(by_alias=True),
         )
+        raise_for_status(response)
 
     def delete(self, policy_id: str) -> None:
         """Deletes a policy
@@ -85,7 +89,8 @@ class PoliciesClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.delete(f"{self._controller}/{policy_id}")
+        response = self._client.delete(f"{self._controller}/{policy_id}")
+        raise_for_status(response)
 
     def evaluate(self, policy_id: str, policy: PolicyEvaluationPlanRequestDTO) -> PolicyEvaluationPlanDTO:
         """Creates a new policy evaluation plan.
@@ -104,6 +109,7 @@ class PoliciesClient:
             f"{self._controller}/{policy_id}/evaluationplan",
             json=policy.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return PolicyEvaluationPlanDTO.model_validate(response.json())
 
     def validate(self, policy_id: str) -> PolicyValidationResultDTO:
@@ -121,4 +127,5 @@ class PoliciesClient:
         response = self._client.post(
             f"{self._controller}/{policy_id}/validate",
         )
+        raise_for_status(response)
         return PolicyValidationResultDTO.model_validate(response.json())

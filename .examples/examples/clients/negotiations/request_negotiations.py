@@ -18,9 +18,9 @@ def main() -> None:
             filter_expression=[
                 CriterionDTO(
                     type="Criterion",
-                    operand_left="assetId",
+                    operand_left="counterPartyId",
                     operator="=",
-                    operand_right="my-asset-id",
+                    operand_right="did",
                 )
             ]
         )

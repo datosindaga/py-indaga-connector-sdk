@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, ContractDefinitionOutputDTO, \
-    ContractDefinitionInputDTO, IdResponseDTO, ContractState, PaginatedResultDTO
+    ContractDefinitionInputDTO, IdResponseDTO, ContractState, PaginatedResultDTO, raise_for_status
 
 
 class ContractDefinitionsClient:
@@ -26,6 +26,7 @@ class ContractDefinitionsClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return PaginatedResultDTO[ContractDefinitionOutputDTO].model_validate(response.json())
 
 
@@ -42,6 +43,7 @@ class ContractDefinitionsClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.get(f"{self._controller}/{contract_id}")
+        raise_for_status(response)
         return ContractDefinitionOutputDTO.model_validate(response.json())
 
     def create(self, contract: ContractDefinitionInputDTO) -> IdResponseDTO:
@@ -60,6 +62,7 @@ class ContractDefinitionsClient:
             self._controller,
             json=contract.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return IdResponseDTO.model_validate(response.json())
 
     def update(self, contract: ContractDefinitionInputDTO) -> None:
@@ -71,10 +74,11 @@ class ContractDefinitionsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.put(
+        response = self._client.put(
             self._controller,
             json=contract.model_dump(by_alias=True),
         )
+        raise_for_status(response)
 
     def change_state(self, contract_id: str, state: ContractState) -> None:
         """Changes the state of a contract.
@@ -86,11 +90,12 @@ class ContractDefinitionsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.put(
+        response = self._client.put(
             f"{self._controller}/state/{contract_id}",
             content=state.value.encode(),
             headers={"Content-Type": "text/plain"},
         )
+        raise_for_status(response)
 
     def delete(self, contract_id: str) -> None:
         """Deletes a contract
@@ -101,4 +106,5 @@ class ContractDefinitionsClient:
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        self._client.delete(f"{self._controller}/{contract_id}")
+        response = self._client.delete(f"{self._controller}/{contract_id}")
+        raise_for_status(response)

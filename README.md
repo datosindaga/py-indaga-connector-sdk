@@ -754,9 +754,9 @@ results = client.negotiations.request(
         filter_expression=[
             CriterionDTO(
                 type="Criterion",
-                operand_left="assetId",
+                operand_left="counterPartyId",
                 operator="=",
-                operand_right="my-asset-id",
+                operand_right="my-did",
             )
         ]
     )
@@ -771,7 +771,6 @@ Returns `list[ContractNegotiationDTO]`.
 |---|---|---|
 | `id` | `string` | Negotiation identifier |
 | `state` | `string` | Current lifecycle state — e.g. `REQUESTED`, `AGREED`, `FINALIZED` |
-| `assetId` | `string` | Identifier of the targeted asset |
 | `contractAgreementId` | `string` | Resulting agreement identifier (populated once `AGREED`) |
 | `counterPartyId` | `string` | Participant identifier of the counterparty |
 | `counterPartyAddress` | `string` | DSP endpoint URL of the counterparty |

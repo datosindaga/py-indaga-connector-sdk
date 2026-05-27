@@ -26,6 +26,7 @@ class CatalogClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return CatalogDTO.model_validate(response.json())
 
     def get_dataset(self, query: DatasetRequestDTO) -> DatasetDTO:
@@ -44,6 +45,7 @@ class CatalogClient:
             f"{self._controller}/dataset/request",
             json=query.model_dump(by_alias=True),
         )
+        raise_for_status(response)
         return DatasetDTO.model_validate(response.json())
 
     def get_contact_catalogs(self, query: ContactRequestDTO) -> list[DetailedDatasetDTO]:
