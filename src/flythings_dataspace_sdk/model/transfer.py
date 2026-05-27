@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any
 from pydantic import BaseModel, Field
 
-from flythings_dataspace_sdk.model.common import CallbackAddressDTO, DataAddressDTO
+from flythings_dataspace_sdk.model.common import AnyDataAddressDTO, CallbackAddressDTO, DataAddressDTO
 
 
 class TransferProcessRole(str, Enum):
@@ -20,14 +20,13 @@ class TransferStateEnum(str, Enum):
     """Enumerates the possible lifecycle states of a transfer process.
 
     Attributes:
-        INITIAL: The transfer has been requested but not yet started.
-        STARTED: The transfer is actively in progress.
-        SUSPENDED: The transfer has been temporarily paused.
-        COMPLETED: The transfer finished successfully.
-        TERMINATED: The transfer was ended before completion, typically by one of the parties.
-        ERROR: The transfer encountered an unrecoverable error.
+        REQUESTED: Transfer requested or being prepared/provisioned.
+        STARTED: Transfer initiated; Provider ready; Consumer pulls or Provider pushes.
+        SUSPENDED: Transfer paused by either party; can resume to STARTED.
+        COMPLETED: Transfer finalized successfully.
+        TERMINATED: Transfer ended without successful completion. Final state.
+        ERROR: Optional implementation-specific error state.
     """
-    INITIAL = "INITIAL"
     REQUESTED = "REQUESTED"
     STARTED = "STARTED"
     SUSPENDED = "SUSPENDED"
@@ -70,7 +69,7 @@ class TransferProcessDTO(BaseModel):
     contract_id: str | None = Field(None, alias="contractId")
     transfer_type: str | None = Field(None, alias="transferType")
     error_detail: str | None = Field(None, alias="errorDetail")
-    data_destination: DataAddressDTO | None = Field(None, alias="dataDestination")
+    data_destination: AnyDataAddressDTO | None = Field(None, alias="dataDestination")
 
     model_config = {"populate_by_name": True}
 
@@ -102,7 +101,7 @@ class TransferRequestDTO(BaseModel):
     contract_id: str | None = Field(None, alias="contractId")
     transfer_type: str | None = Field(None, alias="transferType")
     private_properties: dict[str, Any] = Field(default_factory=dict, alias="privateProperties")
-    data_destination: DataAddressDTO | None = Field(None, alias="dataDestination")
+    data_destination: AnyDataAddressDTO | None = Field(None, alias="dataDestination")
     callback_addresses: list[CallbackAddressDTO] = Field(default_factory=list, alias="callbackAddresses")
 
     model_config = {"populate_by_name": True}

@@ -1,1 +1,4 @@
 from flythings_dataspace_sdk.connector.services.download import DownloadResult, DownloadRequest, DownloadService
+from flythings_dataspace_sdk.connector.services.agreement import GetAssetAgreementsRequest, AgreementService
+from flythings_dataspace_sdk.connector.services.edrs import GetAgreementEDRsRequest, EdrService
+from flythings_dataspace_sdk.connector.services.transfer import StartTransferRequest, TransferService

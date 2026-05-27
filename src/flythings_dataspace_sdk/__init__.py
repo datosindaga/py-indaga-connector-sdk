@@ -3,10 +3,13 @@ from flythings_dataspace_sdk.client import DataspaceClient
 from flythings_dataspace_sdk.auth.auth import TokenAuth, BasicLoginAuth
 
 from flythings_dataspace_sdk.connector.services.download import DownloadRequest
+from flythings_dataspace_sdk.connector.services.agreement import GetAssetAgreementsRequest
+from flythings_dataspace_sdk.connector.services.transfer import StartTransferRequest
+from flythings_dataspace_sdk.connector.services.edrs import GetAgreementEDRsRequest
 
 from flythings_dataspace_sdk.model.asset import AssetInputDTO, AssetOutputDTO
 from flythings_dataspace_sdk.model.catalog import CatalogDTO, CatalogRequestDTO, CatalogServiceDTO, ConstraintExprDTO, ContactRequestDTO, DatasetDTO, DatasetRequestDTO, DetailedDatasetDTO, DistributionDTO, OfferPolicyDTO, PolicyRuleDTO, TermRef
-from flythings_dataspace_sdk.model.common import IdResponseDTO, CriterionDTO, CallbackAddressDTO, DataAddressDTO, SortOrder, QuerySpecDTO
+from flythings_dataspace_sdk.model.common import IdResponseDTO, CriterionDTO, CallbackAddressDTO, DataAddressDTO, AnyDataAddressDTO, HttpDataAddressDTO, S3DataAddressDTO, AzureStorageDataAdressDTO, GenericDataAddressDTO, SortOrder, QuerySpecDTO
 from flythings_dataspace_sdk.model.contractagreement import PolicyDTO, ContractAgreementDTO
 from flythings_dataspace_sdk.model.contractdefinition import ContractState, ContractDefinitionInputDTO, ContractDefinitionOutputDTO
 from flythings_dataspace_sdk.model.contractnegotiation import ContractNegotiationDTO, OfferDTO, ContractRequestDTO, NegotiationStateDTO, TerminationNegotiationDTO
@@ -23,7 +26,8 @@ __all__ = [
     "TokenAuth",
     "BasicLoginAuth",
     # Services
-    "DownloadRequest",
+    "DownloadRequest", "GetAgreementEDRsRequest", "GetAssetAgreementsRequest",
+    "StartTransferRequest",
     # Asset
     "AssetInputDTO", "AssetOutputDTO",
     # Catalog
@@ -31,7 +35,9 @@ __all__ = [
     "ContactRequestDTO", "DatasetDTO", "DatasetRequestDTO", "DetailedDatasetDTO",
     "DistributionDTO", "OfferPolicyDTO", "PolicyRuleDTO", "TermRef",
     # Common
-    "IdResponseDTO", "CriterionDTO", "CallbackAddressDTO", "DataAddressDTO",
+    "IdResponseDTO", "CriterionDTO", "CallbackAddressDTO",
+    "DataAddressDTO", "AnyDataAddressDTO",
+    "HttpDataAddressDTO", "S3DataAddressDTO", "AzureStorageDataAdressDTO", "GenericDataAddressDTO",
     "SortOrder", "QuerySpecDTO",
     # Contract Agreement
     "PolicyDTO", "ContractAgreementDTO",
