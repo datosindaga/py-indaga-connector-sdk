@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, TransferProcessDTO, \
-    TransferRequestDTO, IdResponseDTO, SuspendTransferDTO, raise_for_status
+    TransferRequestDTO, IdResponseDTO, SuspendTransferDTO, PaginatedResultDTO, raise_for_status
 
 class TransfersClient:
     _controller = "/v1/transferprocess"
@@ -9,14 +9,14 @@ class TransfersClient:
     def __init__(self, client: httpx.Client):
         self._client = client
 
-    def request(self, query: QuerySpecDTO) -> list[TransferProcessDTO]:
+    def request(self, query: QuerySpecDTO) -> PaginatedResultDTO[TransferProcessDTO]:
         """Retrieves a paginated list of transfers matching the given query criteria.
 
         Args:
             query: The query specification defining filters, pagination, and sorting.
 
         Returns:
-            A list of transfers matching the criteria. Empty list if none found.
+            Paginated result containing matching transfers and a flag indicating if more exist.
 
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
@@ -26,7 +26,7 @@ class TransfersClient:
             json=query.model_dump(by_alias=True),
         )
         raise_for_status(response)
-        return [TransferProcessDTO.model_validate(item) for item in response.json()]
+        return PaginatedResultDTO[TransferProcessDTO].model_validate(response.json())
 
     def get_by_id(self, transfer_id: str) -> TransferProcessDTO:
         """Retrieves a transfer by its id

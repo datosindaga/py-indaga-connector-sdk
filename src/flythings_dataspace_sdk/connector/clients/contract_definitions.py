@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, ContractDefinitionOutputDTO, \
-    ContractDefinitionInputDTO, IdResponseDTO, ContractState
+    ContractDefinitionInputDTO, IdResponseDTO, ContractState, PaginatedResultDTO
 
 
 class ContractDefinitionsClient:
@@ -10,14 +10,14 @@ class ContractDefinitionsClient:
     def __init__(self, client: httpx.Client):
         self._client = client
 
-    def request(self, query: QuerySpecDTO) -> list[ContractDefinitionOutputDTO]:
+    def request(self, query: QuerySpecDTO) -> PaginatedResultDTO[ContractDefinitionOutputDTO]:
         """Retrieves a paginated list of contract definitions matching the given query criteria.
 
         Args:
             query: The query specification defining filters, pagination, and sorting.
 
         Returns:
-            A list of contract definitions matching the criteria. Empty list if none found.
+            Paginated result containing matching contract definitions and a flag indicating if more exist.
 
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
@@ -26,7 +26,7 @@ class ContractDefinitionsClient:
             f"{self._controller}/request",
             json=query.model_dump(by_alias=True),
         )
-        return [ContractDefinitionOutputDTO.model_validate(item) for item in response.json()]
+        return PaginatedResultDTO[ContractDefinitionOutputDTO].model_validate(response.json())
 
 
     def get_by_id(self, contract_id: str) -> ContractDefinitionOutputDTO:
@@ -88,7 +88,8 @@ class ContractDefinitionsClient:
         """
         self._client.put(
             f"{self._controller}/state/{contract_id}",
-            json=state,
+            content=state.value.encode(),
+            headers={"Content-Type": "text/plain"},
         )
 
     def delete(self, contract_id: str) -> None:

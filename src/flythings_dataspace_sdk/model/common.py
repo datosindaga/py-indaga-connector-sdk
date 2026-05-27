@@ -1,7 +1,22 @@
 from enum import Enum
 
 from pydantic import BaseModel, BeforeValidator, Field
-from typing import Annotated, Any, Union
+from typing import Annotated, Any, Generic, TypeVar, Union
+
+T = TypeVar("T")
+
+
+class PaginatedResultDTO(BaseModel, Generic[T]):
+    """Paginated response wrapper returned by /request endpoints.
+
+    Attributes:
+        items: Items returned in the current response.
+        has_more: Whether more items are available after this response.
+    """
+    items: list[T]
+    has_more: bool | None = Field(None, alias="hasMore")
+
+    model_config = {"populate_by_name": True}
 
 
 class IdResponseDTO(BaseModel):
@@ -15,7 +30,7 @@ class IdResponseDTO(BaseModel):
         type: JSON-LD type of the resource, e.g. ``Asset``, ``PolicyDefinition``.
     """
     id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
+    type: str | None = Field(None, alias="@type")
 
     model_config = {"populate_by_name": True}
 

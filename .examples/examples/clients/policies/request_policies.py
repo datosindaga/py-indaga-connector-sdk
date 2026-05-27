@@ -26,7 +26,7 @@ def main() -> None:
         )
     )
 
-    log.info("Matching policies: %d", len(results))
+    log.info("Matching policies: %d", len(results.items))
 
 
 if __name__ == "__main__":

@@ -17,6 +17,8 @@ def main() -> None:
             counter_party_address="https://provider.connector/protocol",
             counter_party_id="provider-participant-id",
             protocol="dataspace-protocol-http",
+            type="DatasetRequest",
+            context=["https://w3id.org/edc/connector/management/v0.0.1"],
         )
     )
 

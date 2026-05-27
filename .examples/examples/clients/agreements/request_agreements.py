@@ -29,7 +29,7 @@ def main() -> None:
         )
     )
 
-    log.info("Matching edrs for the specified asset: %d", len(edrs))
+    log.info("Matching edrs for the specified asset: %d", len(edrs.items))
 
 
 if __name__ == "__main__":

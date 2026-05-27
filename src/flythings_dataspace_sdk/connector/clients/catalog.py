@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import CatalogRequestDTO, CatalogDTO, \
-    DatasetRequestDTO, DatasetDTO, ContactRequestDTO, DetailedDatasetDTO
+    DatasetRequestDTO, DatasetDTO, ContactRequestDTO, DetailedDatasetDTO, raise_for_status
 
 
 class CatalogClient:
@@ -41,12 +41,12 @@ class CatalogClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.post(
-            f"{self._controller}/request/dataset/request",
+            f"{self._controller}/dataset/request",
             json=query.model_dump(by_alias=True),
         )
         return DatasetDTO.model_validate(response.json())
 
-    def get_contact_catalogs(self, query: ContactRequestDTO) -> DetailedDatasetDTO:
+    def get_contact_catalogs(self, query: ContactRequestDTO) -> list[DetailedDatasetDTO]:
         """Retrieves all the catalogs belonging to the registered contacts.
 
         Args:
@@ -59,7 +59,8 @@ class CatalogClient:
             httpx.HTTPStatusError: If the server returns an error response.
         """
         response = self._client.post(
-            f"{self._controller}/request/contacts/request",
+            f"{self._controller}/contacts/request",
             json=query.model_dump(by_alias=True),
         )
-        return DetailedDatasetDTO.model_validate(response.json())
+        raise_for_status(response)
+        return [DetailedDatasetDTO.model_validate(item) for item in response.json()]

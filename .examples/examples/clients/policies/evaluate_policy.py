@@ -14,6 +14,7 @@ def main() -> None:
     plan = client.policies.evaluate(
         policy_id="my-policy-id",
         policy=PolicyEvaluationPlanRequestDTO(
+            context=["https://w3id.org/edc/connector/management/v0.0.1"],
             type="PolicyEvaluationPlanRequest",
             policy_scope="catalog",
         ),

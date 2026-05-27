@@ -1,6 +1,6 @@
 from flythings_dataspace_sdk.model.asset import AssetInputDTO, AssetOutputDTO
 from flythings_dataspace_sdk.model.catalog import CatalogDTO, CatalogRequestDTO, CatalogServiceDTO, ConstraintExprDTO, ContactRequestDTO, DatasetDTO, DatasetRequestDTO, DetailedDatasetDTO, DistributionDTO, OfferPolicyDTO, PolicyRuleDTO, TermRef
-from flythings_dataspace_sdk.model.common import IdResponseDTO, CriterionDTO, CallbackAddressDTO, DataAddressDTO, AnyDataAddressDTO, HttpDataAddressDTO, S3DataAddressDTO, AzureStorageDataAdressDTO, GenericDataAddressDTO, SortOrder, QuerySpecDTO
+from flythings_dataspace_sdk.model.common import IdResponseDTO, CriterionDTO, CallbackAddressDTO, DataAddressDTO, AnyDataAddressDTO, HttpDataAddressDTO, S3DataAddressDTO, AzureStorageDataAdressDTO, GenericDataAddressDTO, SortOrder, QuerySpecDTO, PaginatedResultDTO
 from flythings_dataspace_sdk.model.contractagreement import PolicyDTO, ContractAgreementDTO
 from flythings_dataspace_sdk.model.contractdefinition import ContractState, ContractDefinitionInputDTO, ContractDefinitionOutputDTO
 from flythings_dataspace_sdk.model.contractnegotiation import ContractNegotiationDTO, OfferDTO, ContractRequestDTO, NegotiationStateDTO, TerminationNegotiationDTO
