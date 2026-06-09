@@ -39,7 +39,7 @@ def main() -> None:
         )
     )
 
-    log.info("Matching assets: %d", len(assets))
+    log.info("Matching assets: %d", len(assets.items))
 
 
 if __name__ == "__main__":

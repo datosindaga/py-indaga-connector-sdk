@@ -29,7 +29,7 @@ def main() -> None:
         )
     )
 
-    log.info("Matching transfers for the specified asset: %d", len(transfers))
+    log.info("Matching transfers for the specified asset: %d", len(transfers.items))
 
 
 if __name__ == "__main__":

@@ -67,9 +67,9 @@ class PolicyEvaluationPlanDTO(BaseModel):
     type: str | None = Field(None, alias="@type")
     context: dict | list | None = Field(None, alias="@context")
     pre_validators: Any = Field(None, alias="preValidators")
-    permission_steps: list[dict[str, Any]] = Field(default_factory=dict, alias="permissionSteps")
-    prohibition_steps: list[dict[str, Any]] = Field(default_factory=list, alias="prohibitionSteps")
-    obligation_steps: list[dict[str, Any]] = Field(default_factory=list, alias="obligationSteps")
+    permission_steps: Any = Field(None, alias="permissionSteps")
+    prohibition_steps: Any = Field(None, alias="prohibitionSteps")
+    obligation_steps: Any = Field(None, alias="obligationSteps")
     post_validators: Any = Field(None, alias="postValidators")
 
     model_config = {"populate_by_name": True}

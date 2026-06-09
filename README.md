@@ -339,6 +339,579 @@ client.assets.delete("my-asset-id")
 
 Returns `None`.
 
+#### Policy Client
+
+`client.policies` exposes the standard CRUD operations for policy definitions, plus evaluation and validation.
+
+##### Request
+
+Fetch a paginated, filtered list of policies. Accepts the same [QuerySpecDTO](#Request) as `client.assets.request()`:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, QuerySpecDTO, CriterionDTO
+
+client = DataspaceClient.from_env()
+
+results = client.policies.request(
+    QuerySpecDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="QuerySpec",
+        filter_expression=[
+            CriterionDTO(
+                type="Criterion",
+                operand_left="id",
+                operator="=",
+                operand_right="my-policy-id",
+            )
+        ]
+    )
+)
+```
+
+Returns `list[PolicyDefinitionOutputDTO]`.
+
+##### Get by ID
+
+Retrieve a single policy by its identifier:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+policy = client.policies.get_by_id("my-policy-id")
+```
+
+Returns a `PolicyDefinitionOutputDTO`.
+
+##### Create
+
+Create a new policy
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, PolicyDefinitionInputDTO
+
+client = DataspaceClient.from_env()
+
+result = client.policies.create(
+    PolicyDefinitionInputDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="PolicyDefinition",
+        private_properties={
+            "id": "require-membership",
+            "title": "Require Membership",
+        },
+        policy={
+            "@type": "Set",
+            "permission": [
+                {
+                    "action": "use",
+                    "constraint": {
+                        "leftOperand": "MembershipCredential",
+                        "operator": "eq",
+                        "rightOperand": "active",
+                    },
+                }
+            ],
+        },
+    )
+)
+```
+
+This policy, when used on a contract, limits the usage to users that have a membership.
+
+Returns the `id` of the created policy as a `string`.
+
+- PolicyDefinitionInputDTO
+
+| Field | Type | Required | Description                                                                        |
+|---|---|--|------------------------------------------------------------------------------------|
+| `id` | `str` | | Explicit policy identifier — auto-generated if omitted. Typically a `urn:uuid:...` |
+| `type` | `str` | | JSON-LD type — should be `PolicyDefinition`                                        |
+| `context` | `dict \| list` | | JSON-LD context — defaults to the EDC management context if omitted                |
+| `policy` | `dict` | ✓ | ODRL policy expression — see ``Policy Structure`` below                            |
+| `private_properties` | `dict` | | Private metadata attached to the policy, not shared externally                     |
+
+- Policy Structure
+
+The `policy` dict follows the [ODRL Information Model](https://www.w3.org/TR/odrl-model/). The top-level `@type` is typically `Set`, with one or more of the following rule arrays:
+
+| Key | Description |
+|---|---|
+| `permission` | Actions that are explicitly allowed, optionally subject to constraints |
+| `prohibition` | Actions that are explicitly forbidden |
+| `obligation` | Actions that must be performed as a condition of use |
+
+Each rule entry supports the following fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `action` | `str` | The ODRL action — e.g. `use`, `transfer` |
+| `constraint` | `dict` | A single constraint applied to the rule |
+| `constraints` | `list[dict]` | Multiple constraints (ANDed together) |
+
+Each constraint contains:
+
+| Field | Description |
+|---|---|
+| `leftOperand` | The attribute being evaluated — e.g. `MembershipCredential` |
+| `operator` | Comparison operator — e.g. `eq`, `neq`, `gt`, `lt`, `in` |
+| `rightOperand` | The value to compare against |
+
+##### Update
+
+The target policy is identified by the `id` field on `PolicyDefinitionInputDTO`:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, PolicyDefinitionInputDTO
+
+client = DataspaceClient.from_env()
+
+result = client.policies.update(
+    PolicyDefinitionInputDTO(
+        id="my-policy-id",
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="PolicyDefinition",
+        private_properties={
+            "id": "require-membership",
+            "title": "Require Membership",
+        },
+        policy={
+            "@type": "Set",
+            "permission": [
+                {
+                    "action": "use",
+                    "constraint": {
+                        "leftOperand": "MembershipCredential",
+                        "operator": "eq",
+                        "rightOperand": "active",
+                    },
+                }
+            ],
+        },
+    )
+)
+```
+
+Returns `None`. For field descriptions see [Create](#create).
+
+##### Delete
+
+Remove a policy by its identifier:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, PolicyDefinitionInputDTO
+
+client = DataspaceClient.from_env()
+client.policies.delete("my-policy-id")
+```
+
+Returns `None`.
+
+##### Evaluate
+
+Generate an evaluation plan describing the steps the connector would execute when enforcing a policy:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, PolicyEvaluationPlanRequestDTO
+
+client = DataspaceClient.from_env()
+
+plan = client.policies.evaluate(
+    policy_id="my-policy-id",
+    policy=PolicyEvaluationPlanRequestDTO(
+        type="PolicyEvaluationPlanRequest",
+        policy_scope="catalog",
+    ),
+)
+```
+
+Returns a `PolicyEvaluationPlanDTO`.
+
+- PolicyEvaluationPlanRequestDTO
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | `str` | JSON-LD type — should be `PolicyEvaluationPlanRequest` |
+| `context` | `dict \| list` | JSON-LD context |
+| `policy_scope` | `str` | Scope within which the policy is evaluated — e.g. `catalog`, `contract.negotiation` |
+
+- PolicyEvaluationPlanDTO
+
+| Field | Type | Description |
+|---|---|---|
+| `pre_validators` | `Any` | Validation steps executed before rule evaluation |
+| `permission_steps` | `list[dict]` | Evaluation steps for ODRL permission rules |
+| `prohibition_steps` | `list[dict]` | Evaluation steps for ODRL prohibition rules |
+| `obligation_steps` | `list[dict]` | Evaluation steps for ODRL obligation rules |
+| `post_validators` | `Any` | Validation steps executed after rule evaluation |
+
+##### Validate
+
+Check whether a policy is structurally and semantically valid:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, PolicyEvaluationPlanRequestDTO
+
+client = DataspaceClient.from_env()
+result = client.policies.validate("my-policy-id")
+```
+
+Returns a `PolicyValidationResultDTO`.
+
+- PolicyValidationResultDTO
+
+| Field | Type | Description |
+|---|---|---|
+| `is_valid` | `bool` | `True` if the policy passed all validation checks |
+| `errors` | `list[str]` | Human-readable error messages — empty when `is_valid` is `True` |
+
+#### Contract Definitions Client
+
+`client.contracts` exposes the standard CRUD operations for contract definitions, plus lifecycle state management.
+
+A contract definition links an access policy, a contract policy, and an asset selector together — it is what makes assets visible and negotiable in the catalog.
+
+##### Request
+
+Fetch a paginated, filtered list of contract definitions using [QuerySpecDTO](#Request):
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, QuerySpecDTO, CriterionDTO
+
+client = DataspaceClient.from_env()
+
+results = client.contracts.request(
+    QuerySpecDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="QuerySpec",
+        filter_expression=[
+            CriterionDTO(
+                type="Criterion",
+                operand_left="id",
+                operator="=",
+                operand_right="my-contract-id",
+            )
+        ]
+    )
+)
+```
+
+Returns `list[ContractDefinitionOutputDTO]`.
+
+- Filterable Contract Fields
+
+| Field | Type | Description                                    |
+|---|---|------------------------------------------------|
+| `id` | `string` | Contract definition identifier                 |
+| `accessPolicyId` | `string` | Identifier of the access policy                |
+| `contractPolicyId` | `string` | Identifier of the contract policy              |
+| `createdAt` | `long` | Creation timestamp (epoch ms)                  |
+| `state` | `string` | Current lifecycle state — see `ContractState`) |
+
+##### Get by ID
+
+Retrieve a single contract definition by its identifier:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+contract = client.contracts.get_by_id("my-contract-id")
+```
+
+Returns a `ContractDefinitionOutputDTO` — identical to `ContractDefinitionInputDTO` with the addition of `state` and `created_at`.
+
+##### Create
+
+Creates a new contract definition
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, ContractDefinitionInputDTO, CriterionDTO
+
+client = DataspaceClient.from_env()
+
+result = client.contracts.create(
+    ContractDefinitionInputDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="ContractDefinition",
+        access_policy_id="my-access-policy-id",
+        contract_policy_id="my-contract-policy-id",
+        assets_selector=[
+            CriterionDTO(
+                type="Criterion",
+                operand_left="id",
+                operator="=",
+                operand_right="my-asset-id",
+            )
+        ],
+    )
+)
+```
+
+This contract targets a specific asset by its id, but contracts can have a more generic definition allowing for multiple assets - e.g all assets of content type json.
+
+Returns the `id` of the created contract definition as a `string`.
+
+- ContractDefinitionInputDTO
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | `str` | | Explicit identifier — auto-generated if omitted. Typically a `urn:uuid:...` |
+| `type` | `str` | | JSON-LD type — should be `ContractDefinition` |
+| `context` | `dict \| list` | | JSON-LD context |
+| `access_policy_id` | `str` | ✓ | Policy governing who may see this contract in the catalog |
+| `contract_policy_id` | `str` | ✓ | Policy governing the terms under which data may be transferred |
+| `assets_selector` | `list[CriterionDTO]` | ✓ | Criteria selecting which assets this contract applies to — follows the same `CriterionDTO` structure as `QuerySpecDTO.filter_expression` |
+| `private_properties` | `dict` | | Private metadata, not shared externally |
+
+##### Update
+
+The target contract is identified by the `id` field on `ContractDefinitionInputDTO`:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, ContractDefinitionInputDTO, CriterionDTO
+
+client = DataspaceClient.from_env()
+client.contracts.update(
+    ContractDefinitionInputDTO(
+        id="my-contract-id",
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="ContractDefinition",
+        access_policy_id="my-access-policy-id",
+        contract_policy_id="my-contract-policy-id",
+        assets_selector=[
+            CriterionDTO(
+                type="Criterion",
+                operand_left="id",
+                operator="=",
+                operand_right="my-asset-id",
+            )
+        ],
+    )
+)
+```
+
+Returns `None`. For field descriptions see [Create](#create) above.
+
+##### Change state
+
+Advance or rewind a contract definition through its lifecycle:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, ContractState
+client = DataspaceClient.from_env()
+
+client.contracts.change_state("my-contract-id", ContractState.PUBLISHED)
+```
+
+Returns `None`.
+
+- ContractState
+
+States are ordered and traversable in both directions:
+
+```
+PREPARING ⇄ UNDER_REVIEW ⇄ READY ⇄ PUBLISHED
+```
+
+| State | Description                                                              |
+|---|--------------------------------------------------------------------------|
+| `PREPARING` | Being configured — not yet active                                        |
+| `UNDER_REVIEW` | Undergoing review before publication                                     |
+| `READY` | Validated and ready to be published (doest exist yet on the EDC Catalog) |
+| `PUBLISHED` | Active and visible in the provider's catalog                             |
+
+##### Delete
+
+Deletes a contract definition by its id.
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+client.contracts.delete("my-contract-id")
+```
+
+Returns `None`.
+
+#### Contract Negotiations Client
+
+`client.negotiations` manages the lifecycle of contract negotiations — the protocol-level handshake between consumer and provider that produces a contract agreement.
+
+##### Request
+
+Fetch a paginated, filtered list of negotiations using [QuerySpecDTO](#Request):
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, QuerySpecDTO, CriterionDTO
+
+client = DataspaceClient.from_env()
+
+results = client.negotiations.request(
+    QuerySpecDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="QuerySpec",
+        filter_expression=[
+            CriterionDTO(
+                type="Criterion",
+                operand_left="counterPartyId",
+                operator="=",
+                operand_right="my-did",
+            )
+        ]
+    )
+)
+```
+
+Returns `list[ContractNegotiationDTO]`.
+
+- Filterable Negotiation Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Negotiation identifier |
+| `state` | `string` | Current lifecycle state — e.g. `REQUESTED`, `AGREED`, `FINALIZED` |
+| `contractAgreementId` | `string` | Resulting agreement identifier (populated once `AGREED`) |
+| `counterPartyId` | `string` | Participant identifier of the counterparty |
+| `counterPartyAddress` | `string` | DSP endpoint URL of the counterparty |
+| `createdAt` | `long` | Creation timestamp (epoch ms) |
+
+##### Get by ID
+
+Retrieve a single negotiation by its identifier:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+negotiation = client.negotiations.get_by_id("my-negotiation-id")
+```
+
+Returns a `ContractNegotiationDTO`.
+
+##### Get state
+
+Returns a lightweight `NegotiationStateDTO` containing only the current `state` string — useful for polling without fetching the full negotiation.
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+state = client.negotiations.get_state_by_id("my-negotiation-id")
+```
+
+Returns a `NegotiationStateDTO`.
+
+##### Get agreement
+
+Get the agreement derived from the contract negotiation.
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+agreement = client.negotiations.get_agreement("my-negotiation-id")
+```
+
+Returns the `ContractAgreementDTO` of the resulting agreement once the negotiation has reached `AGREED` state.
+
+##### Create
+
+Initiate a new contract negotiation with a provider:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, ContractRequestDTO, OfferDTO
+
+client = DataspaceClient.from_env()
+
+result = client.negotiations.create(
+    ContractRequestDTO(
+        context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        type="ContractRequest",
+        counter_party_address="https://provider.connector/protocol",
+        protocol="dataspace-protocol-http",
+        policy=OfferDTO(
+            id="my-offer-id",
+            type="Offer",
+            assigner="provider-participant-id",
+            target="my-asset-id",
+            permission=[
+                {
+                    "action": "use",
+                }
+            ],
+        ),
+    )
+)
+```
+
+Returns the `id` of the created negotiation as a `string`.
+
+- ContractRequestDTO
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `counter_party_address` | `str` | ✓ | DSP protocol endpoint URL of the provider connector |
+| `protocol` | `str` | ✓ | Dataspace protocol — typically `dataspace-protocol-http` |
+| `policy` | `OfferDTO` | ✓ | ODRL offer to propose to the provider |
+| `callback_addresses` | `list[CallbackAddressDTO]` | | Endpoints to notify on negotiation state changes |
+| `private_properties` | `dict` | | Private metadata, not shared externally |
+
+- OfferDTO
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | `str` | ✓ | Offer identifier — typically matches the catalog policy identifier |
+| `type` | `str` | | JSON-LD type — should be `Offer` |
+| `assigner` | `str` | ✓ | Participant identifier of the provider |
+| `target` | `str` | ✓ | Identifier of the asset this offer applies to |
+| `permission` | `list[dict]` | | ODRL permission rules granted by this offer |
+| `prohibition` | `list[dict]` | | ODRL prohibition rules imposed by this offer |
+| `obligation` | `list[dict]` | | ODRL obligation rules required by this offer |
+
+##### Terminate
+
+Abort a negotiation (cannot continue to perform transfers afterward):
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, TerminationNegotiationDTO
+
+client = DataspaceClient.from_env()
+client.negotiations.terminate("my-negotiation-id", TerminationNegotiationDTO(
+    context=["https://w3id.org/edc/connector/management/v0.0.1"],
+    type="TerminateNegotiation",
+    reason="Negotiation terminated by consumer request.",
+))
+```
+
+Returns `None`.
+
+##### Hide
+
+Exclude a negotiation from query results without deleting it:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+client.negotiations.hide("my-negotiation-id")
+```
+
+Returns `None`.
+
+##### Delete
+
+Remove a negotiation by its identifier:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient
+
+client = DataspaceClient.from_env()
+client.negotiations.delete("my-negotiation-id")
+```
+
+Returns `None`.
+
 #### Contract Agreements Client
 
 `client.agreements` provides read access to contract agreements — the binding result of a successfully completed negotiation that authorizes data transfers between two parties. Agreements are read-only; they are produced by the negotiation process and cannot be created or modified directly.
@@ -418,6 +991,95 @@ negotiation = client.agreements.get_negotiation_by_agreement_id("my-agreement-id
 Returns a `ContractNegotiationDTO`. See [Negotiations Client](#contract-negotiations-client) for field descriptions.
 
 > **Note:** The `agreement_id` returned here is also the identifier passed to `DownloadService` — see [DownloadService](#downloadservice).
+
+
+#### Catalog Client
+
+`client.catalog` provides read access to provider catalogs — the mechanism for discovering what assets and offers are available from other connectors.
+
+##### Get catalog
+
+Fetch the full catalog from a remote provider:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, CatalogRequestDTO
+
+client = DataspaceClient.from_env()
+
+catalog = client.catalog.get_catalog(
+    CatalogRequestDTO(
+        counter_party_address="https://provider.connector/protocol",
+        counter_party_id="provider-participant-id",
+        protocol="dataspace-protocol-http",
+    )
+)
+```
+
+Returns a `CatalogDTO`. For the full structure refer to the [EDC Management API docs](https://eclipse-edc.github.io/Connector/openapi/management-api/).
+
+- CatalogRequestDTO
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `counter_party_address` | `str` | ✓ | DSP protocol endpoint URL of the provider connector |
+| `counter_party_id` | `str` | | Participant identifier of the provider connector |
+| `protocol` | `str` | | Dataspace protocol — typically `dataspace-protocol-http` |
+| `query_spec` | `QuerySpecDTO` | | Filtering, sorting, and pagination applied to the catalog response |
+| `additional_scopes` | `list[str]` | | Additional credential scopes to present with the request |
+
+##### Get dataset
+
+Fetch a single dataset from a provider catalog by asset ID:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient,DatasetRequestDTO
+
+client = DataspaceClient.from_env()
+dataset = client.catalog.get_dataset(
+    DatasetRequestDTO(
+        id="my-asset-id",
+        counter_party_address="https://provider.connector/protocol",
+        counter_party_id="provider-participant-id",
+        protocol="dataspace-protocol-http",
+    )
+)
+```
+
+Returns a `DatasetDTO`. For the full structure refer to the [EDC Management API docs](https://eclipse-edc.github.io/Connector/openapi/management-api/).
+
+- DatasetRequestDTO
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | `str` | ✓ | Identifier of the dataset (asset) to retrieve |
+| `counter_party_address` | `str` | ✓ | DSP protocol endpoint URL of the provider connector |
+| `counter_party_id` | `str` | | Participant identifier of the provider connector |
+| `protocol` | `str` | | Dataspace protocol — typically `dataspace-protocol-http` |
+| `query_spec` | `QuerySpecDTO` | | Filtering and pagination applied to the dataset response |
+
+##### Get contact catalogs
+
+Fetch catalogs from all registered contacts in a single call:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient,ContactRequestDTO
+
+client = DataspaceClient.from_env()
+catalogs = client.catalog.get_contact_catalogs(
+    ContactRequestDTO(
+        search="drone",
+    )
+)
+```
+
+Returns a `DetailedDatasetDTO`. For the full structure refer to the [EDC Management API docs](https://eclipse-edc.github.io/Connector/openapi/management-api/).
+
+- ContactRequestDTO
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `str` | Filter by a specific contact or participant identifier |
+| `search` | `str` | Free-text search matched against contact properties |
 
 #### Transfer Client
 
@@ -561,10 +1223,14 @@ Returns `None`.
 Permanently end a transfer before completion:
 
 ```python
-from flythings_dataspace_sdk import DataspaceClient
+from flythings_dataspace_sdk import DataspaceClient, TerminateTransferDTO
 
 client = DataspaceClient.from_env()
-client.transfers.terminate("my-transfer-id")
+client.transfers.terminate("my-transfer-id", TerminateTransferDTO(
+    context=["https://w3id.org/edc/connector/management/v0.0.1"],
+    type="TerminateTransfer",
+    reason="Transfer terminated by consumer request.",
+))
 ```
 
 Returns `None`.
@@ -714,3 +1380,120 @@ file = client.download_service.download(
 | `context` | EDC management v0.0.1 | JSON-LD `@context` — override when using a custom or domain-specific ontology |
 
 The default configuration assumes an HTTP-based transfer. For non-HTTP assets (e.g., S3, Azure Blob), adjust `transfer_type`, `data_address_type`, and `protocol` accordingly.
+
+#### AgreementService
+
+`client.agreement_service` retrieves the contract agreements associated with a given asset.
+
+**Minimal usage** — only `asset_id` is required:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, GetAssetAgreementsRequest
+
+client = DataspaceClient.from_env()
+
+agreements = client.agreement_service.get_agreements(
+        GetAssetAgreementsRequest(asset_id="my-asset-id")
+)
+```
+
+**Full configuration:**
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, GetAssetAgreementsRequest
+
+client = DataspaceClient.from_env()
+agreements = client.agreement_service.get_agreements(
+        GetAssetAgreementsRequest(
+                asset_id="my-asset-id",
+                context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        )
+)
+```
+
+| Parameter | Default | Description |
+|---|---|---|
+| `asset_id` | — | ✓ Identifier of the asset whose agreements to retrieve |
+| `context` | EDC management v0.0.1 | JSON-LD `@context` — override when using a custom or domain-specific ontology |
+
+Returns a list of `ContractAgreementDTO`. See [Agreements Client](#contract-agreements-client) for field descriptions.
+
+#### EDRService
+
+`client.edr_service` retrieves the Endpoint Data References associated with a given contract agreement.
+
+**Minimal usage** — only `agreement_id` is required:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, GetAgreementEDRsRequest
+
+client = DataspaceClient.from_env()
+edrs = client.edr_service.get_edrs(
+        GetAgreementEDRsRequest(agreement_id="my-agreement-id")
+)
+```
+
+**Full configuration:**
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, GetAgreementEDRsRequest
+
+client = DataspaceClient.from_env()
+edrs = client.edr_service.get_edrs(
+        GetAgreementEDRsRequest(
+                agreement_id="my-agreement-id",
+                context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        )
+)
+```
+
+| Parameter | Default | Description |
+|---|---|---|
+| `agreement_id` | — | ✓ Identifier of the agreement whose EDRs to retrieve |
+| `context` | EDC management v0.0.1 | JSON-LD `@context` — override when using a custom or domain-specific ontology |
+
+Returns a list of `EndpointDataReferenceDTO`. See [Endpoint Data Reference Client](#edrs-endpoint-data-references-client) for field descriptions.
+
+#### TransferService
+
+`client.transfer_service` initiates a transfer process for a given contract agreement and polls until the transfer reaches a terminal state.
+
+**Minimal usage** — only `agreement_id` is required:
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, StartTransferRequest
+
+client = DataspaceClient.from_env()
+
+transfer = client.transfer_service.start_transfer(
+        StartTransferRequest(agreement_id="my-agreement-id")
+)
+```
+
+**Full configuration:**
+
+```python
+from flythings_dataspace_sdk import DataspaceClient, StartTransferRequest
+
+client = DataspaceClient.from_env()
+
+transfer = client.transfer_service.start_transfer(
+        StartTransferRequest(
+                agreement_id="my-agreement-id",
+                protocol="dataspace-protocol-http",
+                transfer_type="HttpData-PULL",
+                data_address_type="HttpProxy",
+                context=["https://w3id.org/edc/connector/management/v0.0.1"],
+        )
+)
+```
+
+| Parameter | Default | Description |
+|---|---|---|
+| `agreement_id` | — | ✓ Identifier of the contract agreement authorizing the transfer |
+| `transfer_type` | `HttpData-PULL` | The transfer mechanism used to move the data |
+| `data_address_type` | `HttpProxy` | Specifies how the asset's data address is resolved |
+| `protocol` | `dataspace-protocol-http` | The dataspace protocol used for the transfer |
+| `context` | EDC management v0.0.1 | JSON-LD `@context` — override when using a custom or domain-specific ontology |
+
+Returns a `TransferProcessDTO`. See [Transfer Client](#transfer-client) for field descriptions.

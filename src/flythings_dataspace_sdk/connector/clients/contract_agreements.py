@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, ContractAgreementDTO, \
-    ContractNegotiationDTO, raise_for_status
+    ContractNegotiationDTO, PaginatedResultDTO, raise_for_status
 
 class ContractAgreementsClient:
     _controller = "/v1/contractagreements"
@@ -9,14 +9,14 @@ class ContractAgreementsClient:
     def __init__(self, client: httpx.Client):
         self._client = client
 
-    def request(self, query: QuerySpecDTO) -> list[ContractAgreementDTO]:
-        """Retrieves a paginated list of assets matching the given query criteria.
+    def request(self, query: QuerySpecDTO) -> PaginatedResultDTO[ContractAgreementDTO]:
+        """Retrieves a paginated list of contract agreements matching the given query criteria.
 
         Args:
             query: The query specification defining filters, pagination, and sorting.
 
         Returns:
-            A list of assets matching the criteria. Empty list if none found.
+            Paginated result containing matching contract agreements and a flag indicating if more exist.
 
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
@@ -26,7 +26,7 @@ class ContractAgreementsClient:
             json=query.model_dump(by_alias=True),
         )
         raise_for_status(response)
-        return [ContractAgreementDTO.model_validate(item) for item in response.json()]
+        return PaginatedResultDTO[ContractAgreementDTO].model_validate(response.json())
 
 
     def get_by_id(self, agreement_id: str) -> ContractAgreementDTO:

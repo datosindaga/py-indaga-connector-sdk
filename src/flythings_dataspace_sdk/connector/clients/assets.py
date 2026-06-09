@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, AssetOutputDTO, AssetInputDTO, \
-    IdResponseDTO, raise_for_status
+    IdResponseDTO, PaginatedResultDTO, raise_for_status
 
 
 class AssetsClient:
@@ -10,14 +10,14 @@ class AssetsClient:
     def __init__(self, client: httpx.Client):
         self._client = client
 
-    def request(self, query: QuerySpecDTO) -> list[AssetOutputDTO]:
+    def request(self, query: QuerySpecDTO) -> PaginatedResultDTO[AssetOutputDTO]:
         """Retrieves a paginated list of assets matching the given query criteria.
 
         Args:
             query: The query specification defining filters, pagination, and sorting.
 
         Returns:
-            A list of assets matching the criteria. Empty list if none found.
+            Paginated result containing matching assets and a flag indicating if more exist.
 
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
@@ -27,7 +27,7 @@ class AssetsClient:
             json=query.model_dump(by_alias=True, exclude_none=True),
         )
         raise_for_status(response)
-        return [AssetOutputDTO.model_validate(item) for item in response.json()]
+        return PaginatedResultDTO[AssetOutputDTO].model_validate(response.json())
 
     def get_by_id(self, asset_id: str) -> AssetOutputDTO:
         """Retrieves an asset with the given id.

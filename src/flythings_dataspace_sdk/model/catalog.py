@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from pydantic import BaseModel, Field, AliasChoices
@@ -391,3 +393,17 @@ class TermRef(BaseModel):
     id: str = Field(alias="@id")
 
     model_config = {"populate_by_name": True}
+
+# Resolve forward references between DTOs defined in this module.
+for _model in (
+        CatalogDTO,
+        CatalogServiceDTO,
+        ConstraintExprDTO,
+        DatasetDTO,
+        DetailedDatasetDTO,
+        DistributionDTO,
+        OfferPolicyDTO,
+        PolicyRuleDTO,
+        TermRef,
+):
+    _model.model_rebuild()

@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any
 from pydantic import BaseModel, Field
 
-from flythings_dataspace_sdk.model.common import CallbackAddressDTO, DataAddressDTO
+from flythings_dataspace_sdk.model.common import AnyDataAddressDTO, CallbackAddressDTO, DataAddressDTO
 
 
 class TransferProcessRole(str, Enum):
@@ -20,14 +20,13 @@ class TransferStateEnum(str, Enum):
     """Enumerates the possible lifecycle states of a transfer process.
 
     Attributes:
-        INITIAL: The transfer has been requested but not yet started.
-        STARTED: The transfer is actively in progress.
-        SUSPENDED: The transfer has been temporarily paused.
-        COMPLETED: The transfer finished successfully.
-        TERMINATED: The transfer was ended before completion, typically by one of the parties.
-        ERROR: The transfer encountered an unrecoverable error.
+        REQUESTED: Transfer requested or being prepared/provisioned.
+        STARTED: Transfer initiated; Provider ready; Consumer pulls or Provider pushes.
+        SUSPENDED: Transfer paused by either party; can resume to STARTED.
+        COMPLETED: Transfer finalized successfully.
+        TERMINATED: Transfer ended without successful completion. Final state.
+        ERROR: Optional implementation-specific error state.
     """
-    INITIAL = "INITIAL"
     REQUESTED = "REQUESTED"
     STARTED = "STARTED"
     SUSPENDED = "SUSPENDED"
@@ -70,7 +69,7 @@ class TransferProcessDTO(BaseModel):
     contract_id: str | None = Field(None, alias="contractId")
     transfer_type: str | None = Field(None, alias="transferType")
     error_detail: str | None = Field(None, alias="errorDetail")
-    data_destination: DataAddressDTO | None = Field(None, alias="dataDestination")
+    data_destination: AnyDataAddressDTO | None = Field(None, alias="dataDestination")
 
     model_config = {"populate_by_name": True}
 
@@ -102,7 +101,7 @@ class TransferRequestDTO(BaseModel):
     contract_id: str | None = Field(None, alias="contractId")
     transfer_type: str | None = Field(None, alias="transferType")
     private_properties: dict[str, Any] = Field(default_factory=dict, alias="privateProperties")
-    data_destination: DataAddressDTO | None = Field(None, alias="dataDestination")
+    data_destination: AnyDataAddressDTO | None = Field(None, alias="dataDestination")
     callback_addresses: list[CallbackAddressDTO] = Field(default_factory=list, alias="callbackAddresses")
 
     model_config = {"populate_by_name": True}
@@ -119,6 +118,25 @@ class SuspendTransferDTO(BaseModel):
         type: JSON-LD type, typically ``SuspendTransfer``.
         context: JSON-LD context, either as a vocabulary object or a list of context URLs.
         reason: Human-readable explanation of why the transfer is being suspended.
+    """
+    type: str | None = Field(None, alias="@type")
+    context: dict | list | None = Field(None, alias="@context")
+    reason: str | None = None
+
+    model_config = {"populate_by_name": True}
+
+
+class TerminateTransferDTO(BaseModel):
+    """Represents the input payload for terminating an active transfer process.
+
+    This DTO is sent as the request body to the transfer process termination endpoint.
+    Fields are serialized using JSON-LD conventions — use ``model_dump(by_alias=True)``
+    when building the request payload.
+
+    Attributes:
+        type: JSON-LD type, typically ``TerminateTransfer``.
+        context: JSON-LD context, either as a vocabulary object or a list of context URLs.
+        reason: Human-readable explanation of why the transfer is being terminated.
     """
     type: str | None = Field(None, alias="@type")
     context: dict | list | None = Field(None, alias="@context")

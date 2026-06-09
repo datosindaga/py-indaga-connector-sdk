@@ -11,25 +11,22 @@ def main() -> None:
 
     client = DataspaceClient.from_env()
 
-    asset_id = "0f34e1a8-4dc0-4916-bc18-393bf71888b3"
-
-    # Retrieve the agreements for my asset
-    edrs = client.agreements.request(
+    results = client.contracts.request(
         QuerySpecDTO(
             context=["https://w3id.org/edc/connector/management/v0.0.1"],
             type="QuerySpec",
             filter_expression=[
                 CriterionDTO(
                     type="Criterion",
-                    operand_left="assetId",
+                    operand_left="id",
                     operator="=",
-                    operand_right=asset_id,
+                    operand_right="my-contract-id",
                 )
             ]
         )
     )
 
-    log.info("Matching edrs for the specified asset: %d", len(edrs.items))
+    log.info("Matching contracts: %d", len(results.items))
 
 
 if __name__ == "__main__":
