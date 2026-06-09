@@ -16,7 +16,7 @@ from flythings_dataspace_sdk.model.contractnegotiation import ContractNegotiatio
 from flythings_dataspace_sdk.model.edr import EndpointDataReferenceDTO
 from flythings_dataspace_sdk.model.exceptions import SdkException, SdkBadRequestException, SdkUnauthorizedException, SdkForbiddenException, SdkNotFoundException, SdkConflictException, SdkServerException
 from flythings_dataspace_sdk.model.policy import PolicyDefinitionInputDTO, PolicyDefinitionOutputDTO, PolicyEvaluationPlanDTO, PolicyEvaluationPlanRequestDTO, PolicyValidationResultDTO
-from flythings_dataspace_sdk.model.transfer import TransferProcessRole, TransferStateEnum, TransferProcessDTO, TransferRequestDTO, SuspendTransferDTO, TransferStateDTO
+from flythings_dataspace_sdk.model.transfer import TransferProcessRole, TransferStateEnum, TransferProcessDTO, TransferRequestDTO, SuspendTransferDTO, TerminateTransferDTO, TransferStateDTO
 
 
 __all__ = [
@@ -57,5 +57,5 @@ __all__ = [
     "PolicyEvaluationPlanRequestDTO", "PolicyValidationResultDTO",
     # Transfer
     "TransferProcessRole", "TransferStateEnum", "TransferProcessDTO",
-    "TransferRequestDTO", "SuspendTransferDTO", "TransferStateDTO",
+    "TransferRequestDTO", "SuspendTransferDTO", "TerminateTransferDTO", "TransferStateDTO",
 ]

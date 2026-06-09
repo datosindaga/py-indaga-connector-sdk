@@ -1,7 +1,7 @@
 import httpx
 
 from flythings_dataspace_sdk.model import QuerySpecDTO, TransferProcessDTO, \
-    TransferRequestDTO, IdResponseDTO, SuspendTransferDTO, PaginatedResultDTO, raise_for_status
+    TransferRequestDTO, IdResponseDTO, SuspendTransferDTO, TerminateTransferDTO, PaginatedResultDTO, raise_for_status
 
 class TransfersClient:
     _controller = "/v1/transferprocess"
@@ -92,16 +92,20 @@ class TransfersClient:
         )
         raise_for_status(response)
 
-    def terminate(self, transfer_id: str) -> None:
+    def terminate(self, transfer_id: str, termination: TerminateTransferDTO) -> None:
         """Terminates a transfer
 
         Args:
-            transfer_id: The id of the transfer
+            transfer_id: The id of the transfer.
+            termination: DTO containing the termination reason and JSON-LD context.
 
         Raises:
             httpx.HTTPStatusError: If the server returns an error response.
         """
-        response = self._client.post(f"{self._controller}/{transfer_id}/terminate")
+        response = self._client.post(
+            f"{self._controller}/{transfer_id}/terminate",
+            json=termination.model_dump(by_alias=True),
+        )
         raise_for_status(response)
 
 

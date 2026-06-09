@@ -874,10 +874,14 @@ Returns the `id` of the created negotiation as a `string`.
 Abort a negotiation (cannot continue to perform transfers afterward):
 
 ```python
-from flythings_dataspace_sdk import DataspaceClient
+from flythings_dataspace_sdk import DataspaceClient, TerminationNegotiationDTO
 
 client = DataspaceClient.from_env()
-client.negotiations.terminate("my-negotiation-id")
+client.negotiations.terminate("my-negotiation-id", TerminationNegotiationDTO(
+    context=["https://w3id.org/edc/connector/management/v0.0.1"],
+    type="TerminateNegotiation",
+    reason="Negotiation terminated by consumer request.",
+))
 ```
 
 Returns `None`.
@@ -1219,10 +1223,14 @@ Returns `None`.
 Permanently end a transfer before completion:
 
 ```python
-from flythings_dataspace_sdk import DataspaceClient
+from flythings_dataspace_sdk import DataspaceClient, TerminateTransferDTO
 
 client = DataspaceClient.from_env()
-client.transfers.terminate("my-transfer-id")
+client.transfers.terminate("my-transfer-id", TerminateTransferDTO(
+    context=["https://w3id.org/edc/connector/management/v0.0.1"],
+    type="TerminateTransfer",
+    reason="Transfer terminated by consumer request.",
+))
 ```
 
 Returns `None`.

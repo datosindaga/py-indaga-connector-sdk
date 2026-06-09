@@ -7,4 +7,4 @@ from flythings_dataspace_sdk.model.contractnegotiation import ContractNegotiatio
 from flythings_dataspace_sdk.model.edr import EndpointDataReferenceDTO
 from flythings_dataspace_sdk.model.exceptions import SdkException, SdkBadRequestException, SdkUnauthorizedException, SdkForbiddenException, SdkNotFoundException, SdkConflictException, SdkServerException, raise_for_status
 from flythings_dataspace_sdk.model.policy import PolicyDefinitionInputDTO, PolicyDefinitionOutputDTO, PolicyEvaluationPlanDTO, PolicyEvaluationPlanRequestDTO, PolicyValidationResultDTO
-from flythings_dataspace_sdk.model.transfer import TransferProcessRole, TransferStateEnum, TransferProcessDTO, TransferRequestDTO, SuspendTransferDTO, TransferStateDTO
+from flythings_dataspace_sdk.model.transfer import TransferProcessRole, TransferStateEnum, TransferProcessDTO, TransferRequestDTO, SuspendTransferDTO, TerminateTransferDTO, TransferStateDTO

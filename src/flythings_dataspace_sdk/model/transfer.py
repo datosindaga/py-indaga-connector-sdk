@@ -126,6 +126,25 @@ class SuspendTransferDTO(BaseModel):
     model_config = {"populate_by_name": True}
 
 
+class TerminateTransferDTO(BaseModel):
+    """Represents the input payload for terminating an active transfer process.
+
+    This DTO is sent as the request body to the transfer process termination endpoint.
+    Fields are serialized using JSON-LD conventions — use ``model_dump(by_alias=True)``
+    when building the request payload.
+
+    Attributes:
+        type: JSON-LD type, typically ``TerminateTransfer``.
+        context: JSON-LD context, either as a vocabulary object or a list of context URLs.
+        reason: Human-readable explanation of why the transfer is being terminated.
+    """
+    type: str | None = Field(None, alias="@type")
+    context: dict | list | None = Field(None, alias="@context")
+    reason: str | None = None
+
+    model_config = {"populate_by_name": True}
+
+
 class TransferStateDTO(BaseModel):
     """Represents the current state of a transfer process as a lightweight response body.
 
