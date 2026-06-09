@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from flythings_dataspace_sdk.model.common import DataAddressDTO
+from flythings_dataspace_sdk.model.common import AnyDataAddressDTO, DataAddressDTO
 
 
 class AssetInputDTO(BaseModel):
@@ -21,7 +21,7 @@ class AssetInputDTO(BaseModel):
     id: str | None = Field(None, alias="@id")
     type: str | None = Field(None, alias="@type")
     context: dict | list | None = Field(None, alias="@context")
-    data_address: DataAddressDTO | None = Field(None, alias="dataAddress")
+    data_address: AnyDataAddressDTO | None = Field(None, alias="dataAddress")
     properties: dict[str, object] = Field(default_factory=dict)
     private_properties: dict[str, object] = Field(default_factory=dict, alias="privateProperties")
 
@@ -48,6 +48,6 @@ class AssetOutputDTO(BaseModel):
     created_at: int | None = Field(None, alias="createdAt")
     properties: dict[str, object] = Field(default_factory=dict)
     private_properties: dict[str, object] = Field(default_factory=dict, alias="privateProperties")
-    data_address: DataAddressDTO | None = Field(None, alias="dataAddress")
+    data_address: AnyDataAddressDTO | None = Field(None, alias="dataAddress")
 
     model_config = {"populate_by_name": True}
